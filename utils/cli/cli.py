@@ -1,3 +1,4 @@
+import os
 from types import MethodType
 from typing import Any, Callable, Dict, Optional, Type, Union
 
@@ -42,3 +43,16 @@ class CLI(LightningCLI):
         optimizer_config = self._get(self.config_init, 'optimizer_config')
         if optimizer_config:
             self.model.configure_optimizers = MethodType(get_configure_optimizers_method(optimizer_config), self.model)
+
+    def before_instantiate_classes(self) -> None:
+        """Implement to run some code before instantiating the classes."""
+        super().before_instantiate_classes()
+        config = self.config['config'] if 'subcommand' not in self.config else self.config[self.config['subcommand']]
+        name = os.path.splitext(os.path.split(config['config'][0].abs_path)[1])[0]
+        if config['trainer']['logger'] is not None and (
+                'init_args' not in config['trainer']['logger'] or 'name' not in config['trainer']['logger']['init_args'] or
+                config['trainer']['logger']['init_args']['name'] is None):
+            if 'init_args' in config['trainer']['logger']:
+                config['trainer']['logger']['init_args']['name'] = name
+            else:
+                config['trainer']['logger']['init_args'] = {'name': name}

@@ -1,23 +1,19 @@
 import datetime
 import time
-from typing import Dict, Optional, Union
+from typing import Dict, Union
 
 import pytorch_lightning as pl
-from pytorch_lightning.callbacks.progress.rich_progress import RichProgressBar, RichProgressBarTheme
+from pytorch_lightning.callbacks.progress.rich_progress import RichProgressBar
 
 
 class RichDefaultThemeProgressBar(RichProgressBar):
-
-    def __init__(
-            self,
-            refresh_rate_per_second: Optional[int] = 10,
-            leave: Optional[bool] = False,
-            show_version: Optional[bool] = False,
-            show_eta_time: Optional[bool] = False,
-    ) -> None:
-        super().__init__(refresh_rate_per_second = refresh_rate_per_second, leave = leave, theme = RichProgressBarTheme())
+    def __init__(self, show_version = False, show_eta_time = False, **kwargs) -> None:
+        super().__init__(**kwargs)
         self.show_version = show_version
         self.show_eta_time = show_eta_time
+        if self.show_eta_time:
+            self.start_time = None
+            self.start_epoch = None
 
     def on_train_start(self, trainer, pl_module):
         super().on_train_start(trainer, pl_module)
@@ -50,8 +46,6 @@ class RichDefaultThemeProgressBar(RichProgressBar):
         return train_description
 
     def on_train_epoch_start(self, trainer, pl_module):
-        super(RichProgressBar, self).on_train_epoch_start(trainer, pl_module)
-
         train_description = self._get_train_description(trainer.current_epoch)
         if self.main_progress_bar_id is not None and self._leave:
             self._stop_progress()
@@ -63,8 +57,8 @@ class RichDefaultThemeProgressBar(RichProgressBar):
                                 description = train_description, visible = True)
 
     def on_validation_batch_end(self, trainer, pl_module, outputs, batch, batch_idx, dataloader_idx):
-        super(RichProgressBar, self).on_validation_batch_end(trainer, pl_module, outputs, batch, batch_idx, dataloader_idx)
         if trainer.sanity_checking:
-            self._update(self.val_sanity_progress_bar_id)
+            self._update(self.val_sanity_progress_bar_id, self.val_batch_idx)
         elif self.val_progress_bar_id is not None:
-            self._update(self.val_progress_bar_id)
+            self._update(self.val_progress_bar_id, self.val_batch_idx)
+        self.refresh()

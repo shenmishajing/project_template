@@ -57,11 +57,11 @@ trainer:
     gradient_clip_val: null
     gradient_clip_algorithm: null
     # path
-    weights_save_path: work_dirs
+    default_root_dir: work_dirs
     # gpus
     num_nodes: 1
-    num_processes: 1
-    gpus: -1
+    accelerator: gpu
+    devices: -1
     strategy: ddp_find_unused_parameters_false
     sync_batchnorm: false
     # speed up

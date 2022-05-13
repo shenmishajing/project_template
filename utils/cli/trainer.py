@@ -1,8 +1,7 @@
-from typing import Any, Dict, List
 from typing import Optional
 
 from pytorch_lightning import Trainer as _Trainer
-from pytorch_lightning.trainer.connectors.env_vars_connector import _defaults_from_env_vars
+from pytorch_lightning.utilities.argparse import _defaults_from_env_vars
 
 from ..loop import KFoldLoop, TrainingEpochLoop
 
@@ -27,9 +26,3 @@ class Trainer(_Trainer):
         self.num_folds = num_folds
         if self.num_folds is not None and self.num_folds > 1:
             self.fit_loop = KFoldLoop(self.num_folds, self.fit_loop)
-
-    def _configure_schedulers(
-            self, schedulers: list, monitor: Optional[str], is_manual_optimization: bool
-    ) -> List[Dict[str, Any]]:
-        """Convert each scheduler into dict structure with relevant information."""
-        return super()._configure_schedulers(schedulers, monitor, False)

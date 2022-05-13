@@ -1,8 +1,8 @@
 from typing import Optional
 
-from torch.multiprocessing import set_sharing_strategy, get_all_sharing_strategies
-from pytorch_lightning import LightningModule, Trainer, Callback
+from pytorch_lightning import Callback, LightningModule, Trainer
 from pytorch_lightning.utilities import rank_zero_warn
+from torch.multiprocessing import get_all_sharing_strategies, set_sharing_strategy
 
 
 class SetSharingStrategyCallback(Callback):
@@ -15,7 +15,7 @@ class SetSharingStrategyCallback(Callback):
             strategy = 'file_system'
         self.strategy = strategy
 
-    def on_before_accelerator_backend_setup(self, trainer: Trainer, pl_module: LightningModule, stage: Optional[str] = None) -> None:
+    def setup(self, trainer: Trainer, pl_module: LightningModule, stage: Optional[str] = None) -> None:
         all_strategies = get_all_sharing_strategies()
         if self.strategy in all_strategies:
             set_sharing_strategy(self.strategy)

@@ -4,6 +4,7 @@ from typing import Dict, Optional
 from pytorch_lightning.loggers.base import rank_zero_experiment
 from pytorch_lightning.loggers.wandb import Run, WandbLogger, wandb
 from pytorch_lightning.utilities import rank_zero_only, rank_zero_warn
+from pytorch_lightning.utilities.logger import _add_prefix
 
 
 class WandbNamedLogger(WandbLogger):
@@ -25,19 +26,26 @@ class WandbNamedLogger(WandbLogger):
         if self._experiment is None:
             if self._offline:
                 os.environ["WANDB_MODE"] = "dryrun"
-            if wandb.run is None:
-                self._experiment = wandb.init(**self._wandb_init)
-            else:
+
+            attach_id = getattr(self, "_attach_id", None)
+            if wandb.run is not None:
+                # wandb process already created in this instance
                 rank_zero_warn(
                     "There is a wandb run already in progress and newly created instances of `WandbLogger` will reuse"
                     " this run. If this is not desired, call `wandb.finish()` before instantiating `WandbLogger`."
                 )
                 self._experiment = wandb.run
+            elif attach_id is not None and hasattr(wandb, "_attach"):
+                # attach to wandb process referenced
+                self._experiment = wandb._attach(attach_id)
+            else:
+                # create new wandb process
+                self._experiment = wandb.init(**self._wandb_init)
 
-        # define default x-axis (for latest wandb versions)
-        if getattr(self._experiment, "define_metric", None):
-            self._experiment.define_metric("global_step")
-            self._experiment.define_metric("*", step_metric = "global_step", step_sync = True)
+                # define default x-axis
+                if getattr(self._experiment, "define_metric", None):
+                    self._experiment.define_metric("global_step")
+                    self._experiment.define_metric("*", step_metric = "global_step", step_sync = True)
 
         return self._experiment
 
@@ -55,7 +63,7 @@ class WandbNamedLogger(WandbLogger):
     def log_metrics(self, metrics: Dict[str, float], step: Optional[int] = None) -> None:
         assert rank_zero_only.rank == 0, "experiment tried to log from global_rank != 0"
 
-        metrics = self._add_prefix(metrics)
+        metrics = _add_prefix(metrics, self._prefix, self.LOGGER_JOIN_CHAR)
         if step is not None:
             self.experiment.log({**metrics, "global_step": step})
         else:

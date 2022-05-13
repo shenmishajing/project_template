@@ -1,9 +1,9 @@
 from collections import defaultdict
 from typing import Any, DefaultDict, List, Optional, Tuple, Type
 
-from torch.optim.optimizer import Optimizer
-
 from pytorch_lightning.callbacks import LearningRateMonitor as _LearningRateMonitor
+from pytorch_lightning.utilities.types import LRSchedulerConfig
+from torch.optim.optimizer import Optimizer
 
 
 class LearningRateMonitor(_LearningRateMonitor):
@@ -13,26 +13,26 @@ class LearningRateMonitor(_LearningRateMonitor):
         self.name_prefix = name_prefix
 
     def _find_names_from_schedulers(
-            self, lr_schedulers: List, add_lr_sch_names: bool = True
+            self, lr_scheduler_configs: List[LRSchedulerConfig], add_lr_sch_names: bool = True
     ) -> Tuple[List[List[str]], List[Optimizer], DefaultDict[Type[Optimizer], int]]:
         # Create unique names in the case we have multiple of the same learning
         # rate scheduler + multiple parameter groups
         names = []
         seen_optimizers: List[Optimizer] = []
         seen_optimizer_types: DefaultDict[Type[Optimizer], int] = defaultdict(int)
-        for scheduler in lr_schedulers:
-            if scheduler['scheduler'].optimizer in seen_optimizers:
-                updated_names = names[seen_optimizers.index(scheduler['scheduler'].optimizer)]
+        for config in lr_scheduler_configs:
+            sch = config.scheduler
+            if sch.optimizer in seen_optimizers:
+                updated_names = names[seen_optimizers.index(sch.optimizer)]
             else:
-                sch = scheduler["scheduler"]
                 name = self.name_prefix if self.name_prefix is not None else ''
-                if scheduler["name"] is not None:
-                    name += scheduler["name"]
+                if config.name is not None:
+                    name += config.name
                 else:
                     name += "lr-" + sch.optimizer.__class__.__name__
 
                 updated_names = self._check_duplicates_and_update_name(
-                    sch.optimizer, name, seen_optimizers, seen_optimizer_types, scheduler, add_lr_sch_names
+                    sch.optimizer, name, seen_optimizers, seen_optimizer_types, config, add_lr_sch_names
                 )
             names.append(updated_names)
 
