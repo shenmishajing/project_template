@@ -18,7 +18,7 @@ class WandbLoggerLogAllCodeCallback(Callback):
         self.name = name
 
         if include_exts is None:
-            include_exts = [".py", ".yaml", ".sh", ".md"]
+            include_exts = [".py", ".yaml", ".yml", ".sh", ".md"]
         self.include_exts = include_exts
 
     def setup(
