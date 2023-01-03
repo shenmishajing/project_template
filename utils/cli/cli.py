@@ -34,7 +34,7 @@ class CLI(LightningCLI):
     def _setup_parser_kwargs(
         self, kwargs: Dict[str, Any], defaults: Dict[str, Any]
     ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-        parser_kwargs = {"parser_mode": "yaml_with_merge"}
+        parser_kwargs = {"parser_mode": "mmengine_config"}
         main_kwargs, subparser_kwargs = super()._setup_parser_kwargs(kwargs, defaults)
 
         for k, v in parser_kwargs.items():

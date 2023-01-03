@@ -2,8 +2,8 @@ import copy
 import os
 from typing import Dict, List
 
-from jsonargparse import Path, get_config_read_mode, set_loader
-from jsonargparse.loaders_dumpers import yaml_load
+from jsonargparse import Path, get_config_read_mode, set_dumper, set_loader
+from jsonargparse.loaders_dumpers import dumpers, yaml_load
 from jsonargparse.util import change_to_path_dir
 
 
@@ -188,3 +188,4 @@ def yaml_with_merge_load(stream, path=None, ext_vars=None):
 
 
 set_loader("yaml_with_merge", yaml_with_merge_load)
+set_dumper("yaml_with_merge", dumpers["yaml"])
