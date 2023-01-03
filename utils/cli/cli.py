@@ -1,15 +1,13 @@
 import os.path
 import time
 from types import MethodType
-from typing import Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 
-from pytorch_lightning.cli import (
-    LightningArgumentParser,
-    LightningCLI,
-    SaveConfigCallback,
-)
+from pytorch_lightning.cli import (LightningArgumentParser, LightningCLI,
+                                   SaveConfigCallback)
 
-from utils.callbacks.save_and_log_config_callback import SaveAndLogConfigCallback
+from utils.callbacks.save_and_log_config_callback import \
+    SaveAndLogConfigCallback
 from utils.optim import get_configure_optimizers_method
 
 from .argument_parsers import ActionJsonFile
@@ -33,29 +31,31 @@ class CLI(LightningCLI):
             **kwargs
         )
 
+    def _setup_parser_kwargs(
+        self, kwargs: Dict[str, Any], defaults: Dict[str, Any]
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        parser_kwargs = {"parser_mode": "yaml_with_merge"}
+        main_kwargs, subparser_kwargs = super()._setup_parser_kwargs(kwargs, defaults)
+
+        for k, v in parser_kwargs.items():
+            main_kwargs.setdefault(k, v)
+        for subcommand in self.subcommands():
+            for k, v in parser_kwargs.items():
+                if subcommand not in subparser_kwargs:
+                    subparser_kwargs[subcommand] = {}
+                subparser_kwargs[subcommand].setdefault(k, v)
+
+        return main_kwargs, subparser_kwargs
+
     def add_default_arguments_to_parser(self, parser: LightningArgumentParser) -> None:
         super().add_default_arguments_to_parser(parser)
+        parser.add_argument("--json", action=ActionJsonFile)
         parser.add_argument(
             "--optimizer_config",
             type=Optional[Dict],
             default=None,
             help="Configuration for the optimizers and lr schedulers.",
         )
-
-        parser.add_argument("--json", action=ActionJsonFile)
-
-    # def add_core_arguments_to_parser(self, parser: LightningArgumentParser) -> None:
-    #     """Adds arguments from the core classes to the parser."""
-    #     parser.add_lightning_class_args(self.trainer_class, "trainer")
-    #     trainer_defaults = {"trainer." + k: v for k, v in self.trainer_defaults.items() if k != "callbacks"}
-    #     parser.set_defaults(trainer_defaults)
-
-    #     parser.add_lightning_class_args(self._model_class, "model", subclass_mode = self.subclass_mode_model)
-
-    #     # this should not be required because the user might want to use the `LightningModule` dataloaders
-    #     parser.add_lightning_class_args(
-    #         self._datamodule_class, "data", subclass_mode = self.subclass_mode_data, required = False
-    #     )
 
     def before_instantiate_classes(self) -> None:
         """Implement to run some code before instantiating the classes."""
