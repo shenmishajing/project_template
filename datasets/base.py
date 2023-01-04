@@ -4,10 +4,8 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 
 from lightning.pytorch.cli import instantiate_class
-from lightning.pytorch.core.datamodule import (
-    LightningDataModule as _LightningDataModule,
-)
-from mmengine.dataset import COLLATE_FUNCTIONS
+from lightning.pytorch.core.datamodule import \
+    LightningDataModule as _LightningDataModule
 from sklearn.model_selection import KFold
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Subset
@@ -39,11 +37,6 @@ class LightningDataModule(_LightningDataModule):
             self.split_name_map.setdefault(name, name if name != "predict" else "test")
 
         self.dataloader_cfg = {} if dataloader_cfg is None else dataloader_cfg
-
-        if all([self.dataloader_cfg.get(name) is None for name in self.SPLIT_NAMES]):
-            self.dataloader_cfg = {
-                name: self.dataloader_cfg for name in self.SPLIT_NAMES
-            }
 
         self.datasets = {}
         self.dataset = None
@@ -121,14 +114,10 @@ class LightningDataModule(_LightningDataModule):
                 for i in range(len(dataset))
             ]
         else:
-            dataloader_cfg = copy.deepcopy(self.dataloader_cfg[split])
-            collate_fn_cfg = dataloader_cfg.pop(
-                "collate_fn", dict(type="default_collate")
+            collate_fn = self.collate_fn if hasattr(self, "collate_fn") else None
+            return DataLoader(
+                dataset=dataset, collate_fn=collate_fn, **self.dataloader_cfg
             )
-            collate_fn_type = collate_fn_cfg.pop("type")
-            collate_fn = COLLATE_FUNCTIONS.get(collate_fn_type)
-            collate_fn = partial(collate_fn, **collate_fn_cfg)  # type: ignore
-            return DataLoader(dataset=dataset, collate_fn=collate_fn, **dataloader_cfg)
 
 
 class KFoldLightningDataModule(LightningDataModule, ABC):
