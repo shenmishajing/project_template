@@ -4,9 +4,8 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 
 from lightning.pytorch.cli import instantiate_class
-from lightning.pytorch.core.datamodule import (
-    LightningDataModule as _LightningDataModule,
-)
+from lightning.pytorch.core.datamodule import \
+    LightningDataModule as _LightningDataModule
 from sklearn.model_selection import KFold
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Subset
@@ -25,6 +24,21 @@ class LightningDataModule(_LightningDataModule):
         super().__init__()
 
         self.dataset_cfg = dataset_cfg
+
+        if all([self.dataset_cfg.get(split) is None for split in self.SPLIT_NAMES]):
+            self.dataset_cfg = {
+                split: copy.deepcopy(self.dataset_cfg) for split in self.SPLIT_NAMES
+            }
+
+        for split in self.SPLIT_NAMES:
+            if self.dataset_cfg[split].get("init_args") is None:
+                self.dataset_cfg[split]["init_args"] = {}
+            if self.split_format_to is not None:
+                for s in self.split_format_to:
+                    self.dataset_cfg[split]["init_args"][s] = string.Template(
+                        self.dataset_cfg[split]["init_args"].get(s, "$split")
+                    ).safe_substitute(split=split)
+
         self.split_format_to = (
             split_format_to
             if split_format_to is None or isinstance(split_format_to, list)
@@ -83,19 +97,7 @@ class LightningDataModule(_LightningDataModule):
         return self._dataloader("predict")
 
     def _build_data_set(self, split):
-        cfg = copy.deepcopy(self.dataset_cfg)
-
-        if cfg.get("init_args") is None:
-            cfg["init_args"] = {}
-        if self.split_format_to is None:
-            cfg["init_args"].setdefault("split", split)
-        else:
-            for s in self.split_format_to:
-                cfg["init_args"][s] = string.Template(
-                    cfg["init_args"].get(s, "")
-                ).safe_substitute(split=split)
-
-        return instantiate_class(tuple(), cfg)
+        return instantiate_class(tuple(), self.dataset_cfg[split])
 
     def _build_data_loader(self, dataset, split="train"):
         if isinstance(dataset, Mapping):
