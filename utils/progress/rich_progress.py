@@ -2,8 +2,8 @@ import datetime
 import time
 from typing import Any, Dict, Optional, Union
 
-import pytorch_lightning as pl
-from pytorch_lightning.callbacks.progress.rich_progress import (
+import lightning.pytorch as pl
+from lightning.pytorch.callbacks.progress.rich_progress import (
     RichProgressBar,
     RichProgressBarTheme,
 )

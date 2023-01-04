@@ -1,8 +1,8 @@
 from types import MethodType
 from typing import Optional
 
-from pytorch_lightning import Trainer as _Trainer
-from pytorch_lightning.utilities.argparse import _defaults_from_env_vars
+from lightning.pytorch import Trainer as _Trainer
+from lightning.pytorch.utilities.argparse import _defaults_from_env_vars
 
 from ..loop import KFoldLoop
 

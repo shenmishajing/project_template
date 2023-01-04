@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pytorch_lightning.loggers.wandb import WandbLogger
+from lightning.pytorch.loggers.wandb import WandbLogger
 
 
 class WandbNamedLogger(WandbLogger):

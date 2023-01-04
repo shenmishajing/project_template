@@ -1,24 +1,26 @@
 import thop
-from pytorch_lightning.utilities import rank_zero_warn
-from pytorch_lightning.trainer.states import TrainerFn, TrainerStatus
+from lightning.pytorch.trainer.states import TrainerFn, TrainerStatus
+from lightning.pytorch.utilities import rank_zero_warn
 
 from utils import CLI
 
 
 def main():
-    cli = CLI(run = False)
+    cli = CLI(run=False)
     trainer, model, datamodule = cli.trainer, cli.model, cli.datamodule
-    if hasattr(datamodule, 'data_loader_config'):
-        datamodule.data_loader_config['batch_size'] = 1
+    if hasattr(datamodule, "data_loader_config"):
+        datamodule.data_loader_config["batch_size"] = 1
     else:
-        rank_zero_warn('Can not find data_loader_config in datamodule,'
-                       'you must ensure batch_size == 1 by yourself.')
+        rank_zero_warn(
+            "Can not find data_loader_config in datamodule,"
+            "you must ensure batch_size == 1 by yourself."
+        )
 
     trainer.state.fn = TrainerFn.VALIDATING
     trainer.state.status = TrainerStatus.RUNNING
     trainer.validating = True
 
-    trainer._data_connector.attach_data(model, datamodule = datamodule)
+    trainer._data_connector.attach_data(model, datamodule=datamodule)
 
     # attach model to the training type plugin
     trainer.training_type_plugin.connect(model)
@@ -42,17 +44,19 @@ def main():
 
     trainer.reset_val_dataloader(model)
 
-    dataloader = trainer.training_type_plugin.process_dataloader(trainer.val_dataloaders)[0]
+    dataloader = trainer.training_type_plugin.process_dataloader(
+        trainer.val_dataloaders
+    )[0]
     batch = None
     while batch is None:
         batch = next(iter(dataloader))
 
     batch = trainer.accelerator.batch_to_device(batch)
 
-    total_ops, total_params = thop.profile(model, (batch,), verbose = True)
+    total_ops, total_params = thop.profile(model, (batch,), verbose=True)
     total_ops, total_params = thop.clever_format([total_ops, total_params])
-    print(f'total ops: {total_ops} total params: {total_params}')
+    print(f"total ops: {total_ops} total params: {total_params}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

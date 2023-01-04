@@ -1,8 +1,8 @@
 from collections import defaultdict
 from typing import Any, DefaultDict, List, Optional, Tuple, Type
 
-from pytorch_lightning.callbacks import LearningRateMonitor as _LearningRateMonitor
-from pytorch_lightning.utilities.types import LRSchedulerConfig
+from lightning.pytorch.callbacks import LearningRateMonitor as _LearningRateMonitor
+from lightning.pytorch.utilities.types import LRSchedulerConfig
 from torch.optim.optimizer import Optimizer
 
 

@@ -1,10 +1,10 @@
 import os
 from typing import Dict, Optional
 
-import pytorch_lightning as pl
+import lightning.pytorch as pl
 import torch
-from pytorch_lightning.callbacks import ModelCheckpoint
-from pytorch_lightning.utilities.types import _METRIC
+from lightning.pytorch.callbacks import ModelCheckpoint
+from lightning.pytorch.utilities.types import _METRIC
 
 
 class ModelCheckpointWithLinkBest(ModelCheckpoint):

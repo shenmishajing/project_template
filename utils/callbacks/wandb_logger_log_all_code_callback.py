@@ -1,8 +1,8 @@
 from tkinter import N
 from typing import Optional
 
-from pytorch_lightning import Callback, LightningModule, Trainer
-from pytorch_lightning.loggers.wandb import WandbLogger
+from lightning.pytorch import Callback, LightningModule, Trainer
+from lightning.pytorch.loggers.wandb import WandbLogger
 
 
 class WandbLoggerLogAllCodeCallback(Callback):

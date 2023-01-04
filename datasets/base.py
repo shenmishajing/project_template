@@ -2,7 +2,7 @@ import copy
 from abc import ABC
 from collections.abc import Mapping, Sequence
 
-from pytorch_lightning.core.datamodule import (
+from lightning.pytorch.core.datamodule import (
     LightningDataModule as _LightningDataModule,
 )
 from sklearn.model_selection import KFold

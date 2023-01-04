@@ -1,9 +1,8 @@
 from typing import Optional
 
-from pytorch_lightning import Callback, LightningModule, Trainer
-from pytorch_lightning.utilities import rank_zero_warn
-from torch.multiprocessing import (get_all_sharing_strategies,
-                                   set_sharing_strategy)
+from lightning.pytorch import Callback, LightningModule, Trainer
+from lightning.pytorch.utilities import rank_zero_warn
+from torch.multiprocessing import get_all_sharing_strategies, set_sharing_strategy
 
 
 class SetSharingStrategyCallback(Callback):

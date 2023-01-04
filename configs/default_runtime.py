@@ -11,7 +11,7 @@ trainer = dict(
             init_args=dict(show_version=False, show_eta_time=True),
         ),
         dict(
-            class_path="pytorch_lightning.callbacks.RichModelSummary",
+            class_path="lightning.pytorch.callbacks.RichModelSummary",
             init_args=dict(max_depth=2),
         ),
         dict(

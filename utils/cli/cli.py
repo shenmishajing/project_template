@@ -3,7 +3,7 @@ import time
 from types import MethodType
 from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
 
-from pytorch_lightning.cli import (LightningArgumentParser, LightningCLI,
+from lightning.pytorch.cli import (LightningArgumentParser, LightningCLI,
                                    SaveConfigCallback)
 
 from utils.callbacks.save_and_log_config_callback import \

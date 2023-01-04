@@ -1,8 +1,8 @@
 import copy
 from typing import Optional
 
-from pytorch_lightning import LightningModule, Trainer
-from pytorch_lightning.cli import SaveConfigCallback
+from lightning.pytorch import LightningModule, Trainer
+from lightning.pytorch.cli import SaveConfigCallback
 
 from ..utils import get_log_dir
 

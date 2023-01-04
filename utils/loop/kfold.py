@@ -2,9 +2,9 @@ import os.path as osp
 from copy import deepcopy
 from typing import Any, Dict
 
-from pytorch_lightning.loops.base import Loop
-from pytorch_lightning.loops.fit_loop import FitLoop
-from pytorch_lightning.trainer.states import TrainerFn
+from lightning.pytorch.loops.base import Loop
+from lightning.pytorch.loops.fit_loop import FitLoop
+from lightning.pytorch.trainer.states import TrainerFn
 
 from ..utils import get_log_dir
 
@@ -35,11 +35,15 @@ class KFoldLoop(Loop):
         """Used to call `setup_folds` from the `BaseKFoldDataModule` instance and store the original weights of the
         model."""
         self.trainer.datamodule.setup_folds(self.num_folds)
-        self.lightning_module_state_dict = deepcopy(self.trainer.lightning_module.state_dict())
+        self.lightning_module_state_dict = deepcopy(
+            self.trainer.lightning_module.state_dict()
+        )
 
     def on_advance_start(self, *args: Any, **kwargs: Any) -> None:
         """Used to call `setup_fold_index` from the `BaseKFoldDataModule` instance."""
-        self.trainer.logger.log_metrics({'current_fold': self.current_fold}, step = self.trainer.global_step)
+        self.trainer.logger.log_metrics(
+            {"current_fold": self.current_fold}, step=self.trainer.global_step
+        )
         self.trainer.datamodule.setup_fold_index(self.current_fold)
 
     def advance(self, *args: Any, **kwargs: Any) -> None:
@@ -50,7 +54,9 @@ class KFoldLoop(Loop):
 
     def on_advance_end(self) -> None:
         """Used to save the weights of the current fold and reset the LightningModule and its optimizers."""
-        self.trainer.save_checkpoint(osp.join(self.export_path, f"model_fold_{self.current_fold}.pt"))
+        self.trainer.save_checkpoint(
+            osp.join(self.export_path, f"model_fold_{self.current_fold}.pt")
+        )
         # restore the original weights + optimizers and schedulers.
         self.trainer.lightning_module.load_state_dict(self.lightning_module_state_dict)
         self.trainer.accelerator.setup_optimizers(self.trainer)
