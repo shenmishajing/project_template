@@ -3,11 +3,11 @@ import string
 from abc import ABC
 from collections.abc import Mapping, Sequence
 
+from lightning.pytorch.cli import instantiate_class
 from lightning.pytorch.core.datamodule import (
     LightningDataModule as _LightningDataModule,
 )
 from mmengine.dataset import COLLATE_FUNCTIONS
-from mmengine.registry import DATASETS
 from sklearn.model_selection import KFold
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Subset
@@ -90,18 +90,18 @@ class LightningDataModule(_LightningDataModule):
 
     def _build_data_set(self, split):
         cfg = copy.deepcopy(self.dataset_cfg)
+
+        if cfg.get("init_args") is None:
+            cfg["init_args"] = {}
         if self.split_format_to is None:
-            cfg["split"] = split
+            cfg["init_args"].setdefault("split", split)
         else:
             for s in self.split_format_to:
-                cfg[s] = string.Template(cfg[s]).safe_substitute(split=split)
+                cfg["init_args"][s] = string.Template(
+                    cfg["init_args"].get(s, "")
+                ).safe_substitute(split=split)
 
-        # build dataset
-        dataset = DATASETS.build(cfg)
-        if hasattr(dataset, "full_init"):
-            dataset.full_init()
-
-        return dataset
+        return instantiate_class(tuple(), cfg)
 
     def _build_data_loader(self, dataset, split="train"):
         if isinstance(dataset, Mapping):

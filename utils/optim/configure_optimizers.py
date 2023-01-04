@@ -2,7 +2,7 @@ import copy
 from typing import List, Sequence, Tuple, Union
 
 from lightning.pytorch import LightningModule
-from lightning.pytorch.utilities.cli import instantiate_class
+from lightning.pytorch.cli import instantiate_class
 from lightning.pytorch.utilities.types import LRSchedulerType
 from torch.optim import Optimizer
 
