@@ -4,8 +4,9 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 
 from lightning.pytorch.cli import instantiate_class
-from lightning.pytorch.core.datamodule import \
-    LightningDataModule as _LightningDataModule
+from lightning.pytorch.core.datamodule import (
+    LightningDataModule as _LightningDataModule,
+)
 from sklearn.model_selection import KFold
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Subset
@@ -108,10 +109,10 @@ class LightningDataModule(_LightningDataModule):
         elif isinstance(dataset, Sequence):
             return [
                 self._build_data_loader(
-                    dataset[i],
+                    ds,
                     split=split,
                 )
-                for i in range(len(dataset))
+                for ds in dataset
             ]
         else:
             collate_fn = self.collate_fn if hasattr(self, "collate_fn") else None
