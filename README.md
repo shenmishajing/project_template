@@ -1,7 +1,6 @@
 ## Installation
 
-- install [pytorch](https://pytorch.org/get-started/locally/), torchvision etc.
-  and [mmcv-full](https://mmcv.readthedocs.io/en/latest/get_started/installation.html) from their official site.
+- install [pytorch](https://pytorch.org/get-started/locally/), torchvision etc. from their official site.
 - install required packages with `pip install -r requirements.txt`
 - install this project with `pip install -e .`
 
@@ -12,7 +11,13 @@ on [here](https://pytorch-lightning.readthedocs.io/en/latest/common/lightning_cl
 
 ### Config and config files ###
 
-#### Predefined config files ####
+#### mmengine config files ####
+
+See [mmengine config](https://mmengine.readthedocs.io/zh_CN/latest/advanced_tutorials/config.html) for more details.
+
+#### Yaml with merge config ####
+
+##### Predefined config files #####
 
 The predefined config files are located at `configs/`.
 
@@ -21,20 +26,20 @@ from `configs/runs`. But every other config file is just a part of complete conf
 combining them with each other or write a complete config file under `configs/runs` using `__base__` to inherit from
 them.
 
-#### Syntax ####
+##### Syntax #####
 
 The syntax of config file is [yaml](https://yaml.readthedocs.io/en/latest/) and some additional keyword described as
 follow.
 
-| keyword       | value                                                                                                                                                      | effect                                                                                               |
-| ------------- |------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------|
-| `__base__`    | `str` or `list[str]`,(each `str` should be a relative path from current cofig file)                                                                        | Merge every config one by one, current last.                                                         |
-| `__delete__`  | `True` or `str,int` or `list[str,int]`,`True` for delete all keys from other config, `str,int` only delete the specific key (for dict) or index (for list) | Delete some part of config from other.                       |
-| `__import__`  | Any                                                                                                                                                        | Just delete this, for convenience of reference in yaml                                               |
-| `change_item` | `list[[index, item]]`,used only when merge list                                                                                                            | Add ability of merg list, change the `list[index]` from other to `item`                              |
+| keyword       | value                                                                                                                                                      | effect                                                                                                 |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `__base__`    | `str` or `list[str]`,(each `str` should be a relative path from current cofig file)                                                                        | Merge every config one by one, current last.                                                           |
+| `__delete__`  | `True` or `str,int` or `list[str,int]`,`True` for delete all keys from other config, `str,int` only delete the specific key (for dict) or index (for list) | Delete some part of config from other.                                                                 |
+| `__import__`  | Any                                                                                                                                                        | Just delete this, for convenience of reference in yaml                                                 |
+| `change_item` | `list[[index, item]]`,used only when merge list                                                                                                            | Add ability of merg list, change the `list[index]` from other to `item`                                |
 | `insert_item` | `list[[index, item, (extend)]]`,used only when merge list                                                                                                  | Add ability of merg list, insert iterm to the `list` at `index`, extend=True if insert a list of items |
-| `pre_item`    | `Any`or `list[Any]`,used only when merge list                                                                                                              | Add ability of merg list, add the value in the start of the list from other to item                  |
-| `post_item`   | `Any`or `list[Any]`,used only when merge list                                                                                                              | Add ability of merg list, add the value in the end of the list from other to item                    |
+| `pre_item`    | `Any`or `list[Any]`,used only when merge list                                                                                                              | Add ability of merg list, add the value in the start of the list from other to item                    |
+| `post_item`   | `Any`or `list[Any]`,used only when merge list                                                                                                              | Add ability of merg list, add the value in the end of the list from other to item                      |
 
 ### CLI ###
 
