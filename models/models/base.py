@@ -3,7 +3,7 @@ from typing import Any, Mapping, Union
 
 import torch
 from lightning.pytorch import LightningModule as _LightningModule
-from mmcv.runner import BaseModule
+from mmengine.model import BaseModule
 
 
 class LightningModule(_LightningModule, BaseModule, ABC):

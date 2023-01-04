@@ -1,23 +1,36 @@
 import copy
+import string
 from abc import ABC
 from collections.abc import Mapping, Sequence
 
 from lightning.pytorch.core.datamodule import (
     LightningDataModule as _LightningDataModule,
 )
+from mmengine.dataset import COLLATE_FUNCTIONS
+from mmengine.registry import DATASETS
 from sklearn.model_selection import KFold
-from torch.utils.data import IterableDataset
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Subset
-
-from utils.cli.argument_parsers.yaml_with_merge import deep_update
 
 
 class LightningDataModule(_LightningDataModule):
     SPLIT_NAMES = ["train", "val", "test", "predict"]
 
-    def __init__(self, data_loader_config=None, split_name_map=None):
+    def __init__(
+        self,
+        dataset_cfg,
+        dataloader_cfg=None,
+        split_format_to="ann_file",
+        split_name_map=None,
+    ):
         super().__init__()
+
+        self.dataset_cfg = dataset_cfg
+        self.split_format_to = (
+            split_format_to
+            if split_format_to is None or isinstance(split_format_to, list)
+            else [split_format_to]
+        )
         if split_name_map is None:
             self.split_name_map = {}
         else:
@@ -25,31 +38,12 @@ class LightningDataModule(_LightningDataModule):
         for name in self.SPLIT_NAMES:
             self.split_name_map.setdefault(name, name if name != "predict" else "test")
 
-        self.data_loader_config = (
-            {} if data_loader_config is None else data_loader_config
-        )
+        self.dataloader_cfg = {} if dataloader_cfg is None else dataloader_cfg
 
-        if all(
-            [self.data_loader_config.get(name) is None for name in self.SPLIT_NAMES]
-        ):
-            self.data_loader_config = {
-                name: copy.deepcopy(self.data_loader_config)
-                for name in self.SPLIT_NAMES
+        if all([self.dataloader_cfg.get(name) is None for name in self.SPLIT_NAMES]):
+            self.dataloader_cfg = {
+                name: self.dataloader_cfg for name in self.SPLIT_NAMES
             }
-        else:
-            for main_name in self.SPLIT_NAMES:
-                if self.data_loader_config.get(main_name) is not None:
-                    for name in [n for n in self.SPLIT_NAMES if n != main_name]:
-                        if self.data_loader_config.get(name) is None:
-                            self.data_loader_config[name] = copy.deepcopy(
-                                self.data_loader_config[main_name]
-                            )
-                        else:
-                            self.data_loader_config[name] = deep_update(
-                                copy.deepcopy(self.data_loader_config[main_name]),
-                                self.data_loader_config[name],
-                            )
-                    break
 
         self.datasets = {}
         self.dataset = None
@@ -83,7 +77,7 @@ class LightningDataModule(_LightningDataModule):
         )
 
     def train_dataloader(self):
-        return self._dataloader("train", shuffle=True)
+        return self._dataloader("train")
 
     def val_dataloader(self):
         return self._dataloader("val")
@@ -95,46 +89,46 @@ class LightningDataModule(_LightningDataModule):
         return self._dataloader("predict")
 
     def _build_data_set(self, split):
-        raise NotImplementedError
+        cfg = copy.deepcopy(self.dataset_cfg)
+        if self.split_format_to is None:
+            cfg["split"] = split
+        else:
+            for s in self.split_format_to:
+                cfg[s] = string.Template(cfg[s]).safe_substitute(split=split)
 
-    def _build_data_loader(
-        self, dataset, shuffle=False, collate_fn=None, split="train"
-    ):
-        def dataloader(ds, cl_fn) -> DataLoader:
-            return DataLoader(
-                ds,
-                shuffle=shuffle and not isinstance(ds, IterableDataset),
-                collate_fn=cl_fn,
-                **self.data_loader_config[split]
-            )
+        # build dataset
+        dataset = DATASETS.build(cfg)
+        if hasattr(dataset, "full_init"):
+            dataset.full_init()
 
-        if collate_fn is None and hasattr(self, "collate"):
-            collate_fn = self.collate
+        return dataset
+
+    def _build_data_loader(self, dataset, split="train"):
         if isinstance(dataset, Mapping):
             return {
                 key: self._build_data_loader(
                     ds,
-                    shuffle=shuffle,
-                    collate_fn=collate_fn[key]
-                    if isinstance(collate_fn, Mapping)
-                    else collate_fn,
                     split=split,
                 )
                 for key, ds in dataset.items()
             }
-        if isinstance(dataset, Sequence):
+        elif isinstance(dataset, Sequence):
             return [
                 self._build_data_loader(
                     dataset[i],
-                    shuffle=shuffle,
-                    collate_fn=collate_fn[i]
-                    if isinstance(collate_fn, Sequence)
-                    else collate_fn,
                     split=split,
                 )
                 for i in range(len(dataset))
             ]
-        return dataloader(dataset, cl_fn=collate_fn)
+        else:
+            dataloader_cfg = copy.deepcopy(self.dataloader_cfg[split])
+            collate_fn_cfg = dataloader_cfg.pop(
+                "collate_fn", dict(type="default_collate")
+            )
+            collate_fn_type = collate_fn_cfg.pop("type")
+            collate_fn = COLLATE_FUNCTIONS.get(collate_fn_type)
+            collate_fn = partial(collate_fn, **collate_fn_cfg)  # type: ignore
+            return DataLoader(dataset=dataset, collate_fn=collate_fn, **dataloader_cfg)
 
 
 class KFoldLightningDataModule(LightningDataModule, ABC):
@@ -178,7 +172,7 @@ class KFoldLightningDataModule(LightningDataModule, ABC):
         )
 
     def train_dataloader(self):
-        return self._fold_dataloader("train", shuffle=True)
+        return self._fold_dataloader("train")
 
     def val_dataloader(self):
         return self._fold_dataloader("val")
