@@ -5,12 +5,9 @@ from mmengine import Config
 
 def mmengine_config(stream, path=None, ext_vars=None):
     if path:
-        for ext in [".py", ".json", ".yaml", ".yml"]:
-            if path.endswith(ext):
-                break
+        return Config.fromfile(path)
     else:
-        ext = ".py"
-    return Config.fromstring(stream, ext)
+        return stream
 
 
 set_loader("mmengine_config", mmengine_config)
