@@ -1,5 +1,4 @@
 import functools
-from types import MethodType
 from typing import Optional
 
 from lightning.pytorch import Trainer as _Trainer
