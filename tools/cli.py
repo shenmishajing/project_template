@@ -1,4 +1,4 @@
-from utils import CLI
+from utils.cli import CLI
 
 
 def main():

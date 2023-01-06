@@ -1,3 +1,4 @@
+import os
 import os.path as osp
 from copy import deepcopy
 from typing import Any, Dict
@@ -6,7 +7,6 @@ from lightning.pytorch.loops.base import Loop
 from lightning.pytorch.loops.fit_loop import FitLoop
 from lightning.pytorch.trainer.states import TrainerFn
 
-from ..utils import get_log_dir
 
 
 class KFoldLoop(Loop):
@@ -20,9 +20,7 @@ class KFoldLoop(Loop):
 
     @property
     def export_path(self) -> str:
-        if self._export_path is None:
-            self._export_path = get_log_dir(self.trainer)
-        return self._export_path
+        return os.path.join(self.trainer.log_dir, 'fold_checkpoints')
 
     @property
     def done(self) -> bool:

@@ -1,4 +1,4 @@
-import os.path
+import os
 import time
 from types import MethodType
 from typing import Any, Callable, Dict, Optional, Tuple, Type, Union
@@ -65,19 +65,23 @@ class CLI(LightningCLI):
             if "subcommand" not in self.config
             else self.config[self.config["subcommand"]]
         )
-        exp_name = os.path.splitext(os.path.split(config["config"][0].abs_path)[1])[0]
-        exp_id = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time()))
-        value_dict = {"name": exp_name, "version": exp_id}
+        name = os.path.splitext(os.path.split(config["config"][0].abs_path)[1])[0]
+        version = time.strftime("%Y%m%d_%H%M%S", time.localtime(time.time()))
         if (
             config.get("trainer") is not None
             and config["trainer"].get("logger") is not None
         ):
             if config["trainer"]["logger"].get("init_args") is None:
-                config["trainer"]["logger"]["init_args"] = value_dict
-            else:
-                for k, v in value_dict.items():
-                    if config["trainer"]["logger"]["init_args"].get(k) is None:
-                        config["trainer"]["logger"]["init_args"][k] = v
+                config["trainer"]["logger"]["init_args"] = {}
+            save_dir = config["trainer"]["logger"]["init_args"].get("save_dir")
+            save_dir = os.path.join(
+                save_dir if save_dir else "work_dirs", name, version
+            )
+            os.makedirs(save_dir, exist_ok=True)
+            config["trainer"]["logger"]["init_args"]["save_dir"] = save_dir
+            for k, v in {"name": name, "version": version}.items():
+                if config["trainer"]["logger"]["init_args"].get(k) is None:
+                    config["trainer"]["logger"]["init_args"][k] = v
 
     def _add_configure_optimizers_method_to_model(
         self, subcommand: Optional[str]
