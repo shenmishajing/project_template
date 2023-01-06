@@ -4,8 +4,9 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 
 from lightning.pytorch.cli import instantiate_class
-from lightning.pytorch.core.datamodule import \
-    LightningDataModule as _LightningDataModule
+from lightning.pytorch.core.datamodule import (
+    LightningDataModule as _LightningDataModule,
+)
 from sklearn.model_selection import KFold
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Subset
@@ -16,7 +17,7 @@ class LightningDataModule(_LightningDataModule):
 
     def __init__(
         self,
-        dataset_cfg,
+        dataset_cfg: dict,
         dataloader_cfg=None,
         split_format_to="ann_file",
         split_name_map=None,
@@ -30,6 +31,12 @@ class LightningDataModule(_LightningDataModule):
                 split: copy.deepcopy(self.dataset_cfg) for split in self.SPLIT_NAMES
             }
 
+        self.split_format_to = (
+            split_format_to
+            if split_format_to is None or isinstance(split_format_to, list)
+            else [split_format_to]
+        )
+
         for split in self.SPLIT_NAMES:
             if self.dataset_cfg[split].get("init_args") is None:
                 self.dataset_cfg[split]["init_args"] = {}
@@ -39,11 +46,6 @@ class LightningDataModule(_LightningDataModule):
                         self.dataset_cfg[split]["init_args"].get(s, "$split")
                     ).safe_substitute(split=split)
 
-        self.split_format_to = (
-            split_format_to
-            if split_format_to is None or isinstance(split_format_to, list)
-            else [split_format_to]
-        )
         if split_name_map is None:
             self.split_name_map = {}
         else:

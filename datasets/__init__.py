@@ -1,1 +1,1 @@
-from .base import LightningDataModule
+from .base import LightningDataModule as LightningDataModule
