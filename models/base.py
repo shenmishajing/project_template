@@ -91,7 +91,7 @@ class LightningModule(_LightningModule, BaseModule, ABC):
     def on_fit_start(self):
         self.init_weights()
 
-    def _dump_init_info(self, logger_name):
+    def _dump_init_info(self, *args, **kwargs):
         pass
 
     def training_step(self, batch, *args, **kwargs):
