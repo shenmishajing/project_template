@@ -3,8 +3,13 @@ import os
 from typing import Dict, List
 
 from jsonargparse import Path, get_config_read_mode, set_dumper, set_loader
-from jsonargparse.loaders_dumpers import dumpers, yaml_load
+from jsonargparse.loaders_dumpers import DefaultLoader, dumpers, yaml_load
 from jsonargparse.util import change_to_path_dir
+from yaml.constructor import FullConstructor
+
+DefaultLoader.add_constructor(
+    "tag:yaml.org,2002:python/tuple", FullConstructor.construct_python_tuple
+)
 
 
 def deep_update(source, override):
