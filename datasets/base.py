@@ -92,9 +92,7 @@ class LightningDataModule(_LightningDataModule):
         return split_names
 
     def _setup_dataset(self, split_name):
-        self.datasets[split_name] = self._build_data_set(
-            self.split_name_map[split_name]
-        )
+        self.datasets[split_name] = self._build_data_set(split_name)
 
     def setup(self, stage=None):
         split_names = self._get_split_names(stage)
