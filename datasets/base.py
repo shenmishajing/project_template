@@ -121,6 +121,41 @@ class LightningDataModule(_LightningDataModule):
     def _build_data_set(self, split):
         return instantiate_class(tuple(), self.dataset_cfg[split])
 
+    def _build_worker_init_fn(self, worker_init_fn_cfg):
+        raise NotImplementedError
+
+    def _build_collate_fn(self, collate_fn_cfg):
+        raise NotImplementedError
+
+    def _build_sampler(self, sampler_cfg, dataset):
+        return instantiate_class((dataset,), sampler_cfg)
+
+    def _build_batch_sampler(self, batch_sampler_cfg, sampler, batch_size, drop_last):
+        return instantiate_class((sampler, batch_size, drop_last), batch_sampler_cfg)
+
+    def _construct_data_loader(self, dataset, split="train"):
+        kwargs = copy.deepcopy(self.dataloader_cfg.get(split, {}))
+
+        if "worker_init_fn" in kwargs:
+            kwargs["worker_init_fn"] = self._build_worker_init_fn(
+                kwargs["worker_init_fn"]
+            )
+
+        if "collate_fn" in kwargs:
+            kwargs["collate_fn"] = self._build_collate_fn(kwargs["collate_fn"])
+
+        if "sampler" in kwargs:
+            kwargs["sampler"] = self._build_sampler(kwargs["sampler"], dataset)
+
+        if "batch_sampler" in kwargs:
+            kwargs["batch_sampler"] = self._build_batch_sampler(
+                kwargs["batch_sampler"],
+                kwargs.pop("sampler"),
+                kwargs.pop("batch_size", 1),
+                kwargs.pop("drop_last", False),
+            )
+        return DataLoader(dataset, **kwargs)
+
     def _build_data_loader(self, dataset, split="train"):
         if isinstance(dataset, Mapping):
             return {
@@ -139,10 +174,7 @@ class LightningDataModule(_LightningDataModule):
                 for ds in dataset
             ]
         else:
-            collate_fn = self.collate_fn if hasattr(self, "collate_fn") else None
-            return DataLoader(
-                dataset=dataset, collate_fn=collate_fn, **self.dataloader_cfg[split]
-            )
+            return self._construct_data_loader(dataset, split=split)
 
 
 class KFoldLightningDataModule(LightningDataModule, ABC):
