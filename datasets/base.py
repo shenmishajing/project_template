@@ -19,58 +19,66 @@ class LightningDataModule(_LightningDataModule):
     def __init__(
         self,
         dataset_cfg: dict,
-        dataloader_cfg=None,
-        split_format_to="ann_file",
-        split_name_map=None,
+        dataloader_cfg: dict = None,
     ):
         super().__init__()
 
         self.dataset_cfg = self.get_split_config(dataset_cfg)
         self.dataloader_cfg = self.get_split_config(dataloader_cfg)
 
-        self.split_format_to = (
-            split_format_to
-            if split_format_to is None or isinstance(split_format_to, list)
-            else [split_format_to]
-        )
-
-        for split in self.SPLIT_NAMES:
-            if self.dataset_cfg[split].get("init_args") is None:
-                self.dataset_cfg[split]["init_args"] = {}
-            if self.split_format_to is not None:
-                for s in self.split_format_to:
-                    self.dataset_cfg[split]["init_args"][s] = string.Template(
-                        self.dataset_cfg[split]["init_args"].get(s, "$split")
-                    ).safe_substitute(split=split)
-
-        if split_name_map is None:
-            self.split_name_map = {}
-        else:
-            self.split_name_map = split_name_map
-        for name in self.SPLIT_NAMES:
-            self.split_name_map.setdefault(name, name if name != "predict" else "test")
-
         self.datasets = {}
         self.dataset = None
 
     def get_split_config(self, config):
-        res = {}
         if isinstance(config, Mapping):
             if all([config.get(name) is None for name in self.SPLIT_NAMES]):
-                res = {name: copy.deepcopy(config) for name in self.SPLIT_NAMES}
+                return {name: copy.deepcopy(config) for name in self.SPLIT_NAMES}
             else:
                 res = {}
-                for main_name in self.SPLIT_NAMES:
-                    if config.get(main_name) is not None:
-                        break
+                last_name = None
                 for name in self.SPLIT_NAMES:
-                    if config.get(name) is None or name == main_name:
-                        res[name] = copy.deepcopy(config[main_name])
+                    if last_name is None:
+                        res[name] = copy.deepcopy(config[name])
                     else:
                         res[name] = deep_update(
-                            copy.deepcopy(config[main_name]), config[name]
+                            copy.deepcopy(res[last_name]), config.get(name, {})
                         )
-        return res
+                    last_name = name
+
+                if "split_info" in config:
+                    config = config["split_info"]
+
+                    if not isinstance(config["split_format_to"], Sequence):
+                        config["split_format_to"] = [config["split_format_to"]]
+
+                    config["split_name_map"] = config.get("split_name_map", {})
+                    for name in self.SPLIT_NAMES:
+                        config["split_name_map"].setdefault(
+                            name, name if name != "predict" else "test"
+                        )
+
+                    config.setdefault("split_attr_split_str", ".")
+
+                    for name in self.SPLIT_NAMES:
+                        if res[name].get("init_args") is None:
+                            res[name]["init_args"] = {}
+                        for split_attr in config["split_format_to"]:
+                            cur_cfg = res[name]["init_args"]
+                            split_attr = split_attr.split(
+                                config["split_attr_split_str"]
+                            )
+                            for s in split_attr[:-1]:
+                                cur_cfg = cur_cfg[s]
+                            split_attr = split_attr[-1]
+                            cur_cfg[split_attr] = string.Template(
+                                cur_cfg.get(split_attr, "$split")
+                            ).safe_substitute(split=config["split_name_map"][name])
+                return res
+        else:
+            return {
+                name: copy.deepcopy(config) if config else {}
+                for name in self.SPLIT_NAMES
+            }
 
     def _get_split_names(self, stage=None):
         if self.trainer.overfit_batches > 0:
