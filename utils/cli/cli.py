@@ -32,10 +32,10 @@ class CLI(LightningCLI):
         )
 
     def _setup_parser_kwargs(
-        self, kwargs: Dict[str, Any], defaults: Dict[str, Any]
+        self, *args, **kwargs
     ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         parser_kwargs = {"parser_mode": "yaml_with_merge"}
-        main_kwargs, subparser_kwargs = super()._setup_parser_kwargs(kwargs, defaults)
+        main_kwargs, subparser_kwargs = super()._setup_parser_kwargs(*args, **kwargs)
 
         for k, v in parser_kwargs.items():
             main_kwargs.setdefault(k, v)
@@ -83,10 +83,8 @@ class CLI(LightningCLI):
                 if config["trainer"]["logger"]["init_args"].get(k) is None:
                     config["trainer"]["logger"]["init_args"][k] = v
 
-    def _add_configure_optimizers_method_to_model(
-        self, subcommand: Optional[str]
-    ) -> None:
-        super()._add_configure_optimizers_method_to_model(subcommand)
+    def _add_configure_optimizers_method_to_model(self, *args, **kwargs) -> None:
+        super()._add_configure_optimizers_method_to_model(*args, **kwargs)
         optimizer_config = self._get(self.config_init, "optimizer_config")
         if optimizer_config:
             self.model.configure_optimizers = MethodType(
