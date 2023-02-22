@@ -9,7 +9,7 @@ from mmengine.model import BaseModule
 class LightningModule(_LightningModule, BaseModule, ABC):
     def __init__(
         self,
-        normalize_config=None,
+        normalize_cfg=None,
         loss_weights=None,
         loss_modules: Mapping[str, torch.nn.Module] = None,
         *args,
@@ -17,11 +17,22 @@ class LightningModule(_LightningModule, BaseModule, ABC):
     ) -> None:
         super().__init__(*args, **kwargs)
         self.automatic_lr_schedule = True
-        self.normalize_config = normalize_config
+        self.manual_step_scedulers = []
         self.lr = None
         self.batch_size = None
+
+        self.normalize_cfg = normalize_cfg
         self.loss_weights = loss_weights
         self.loss_modules = torch.nn.ModuleDict(loss_modules) if loss_modules else None
+
+    def optimizer_step(self, *args, **kwargs) -> None:
+        # update params
+        super().optimizer_step(*args, **kwargs)
+
+        # manual step lr scheduler
+        for scheduler in self.manual_step_scedulers:
+            if self.trainer.global_step % scheduler["frequency"] == 0:
+                scheduler["scheduler"].step()
 
     def configure_optimizer_parameters(self):
         return None
