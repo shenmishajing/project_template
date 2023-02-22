@@ -41,7 +41,7 @@ class SetPrecisionAndCudnnCallback(Callback):
         if self.deterministic_debug_mode is not None:
             torch.set_deterministic_debug_mode(self.deterministic_debug_mode)
 
-        if torch.beckends.cudnn.is_available():
+        if torch.backends.cudnn.is_available():
             if self.cudnn_enabled is not None:
                 torch.backends.cudnn.enabled = self.cudnn_enabled
             if self.cudnn_benchmark is not None:
