@@ -19,7 +19,7 @@ trainer:
               allow_fp16_reduced_precision_reduction: true
               deterministic_debug_mode: default
               cudnn_enabled: true
-              cudnn_benchmark: true
+              cudnn_benchmark: false
               cudnn_deteministic: false
         - class_path: utils.callbacks.wandb_logger_watch_model_callback.WandbLoggerWatchModelCallback
           init_args:
