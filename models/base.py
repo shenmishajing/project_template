@@ -73,19 +73,16 @@ class LightningModule(_LightningModule, BaseModule, ABC):
         pass
 
     def training_step(self, batch, *args, **kwargs):
-        res = self(batch)
-        loss_dict = self.loss_step(batch, res)
-        self.log_dict(self.add_prefix(loss_dict, prefix="train"))
+        loss_dict = self.loss_step(batch, self(batch))
+        self.log_dict(self.add_prefix(loss_dict))
         return loss_dict
 
     def validation_step(self, batch, *args, **kwargs):
-        res = self(batch)
-        loss_dict = self.loss_step(batch, res)
+        loss_dict = self.loss_step(batch, self(batch))
         self.log_dict(self.add_prefix(loss_dict, prefix="val"), sync_dist=True)
         return loss_dict
 
     def test_step(self, batch, *args, **kwargs):
-        res = self(batch)
-        loss_dict = self.loss_step(batch, res)
+        loss_dict = self.loss_step(batch, self(batch))
         self.log_dict(self.add_prefix(loss_dict, prefix="test"), sync_dist=True)
         return loss_dict
