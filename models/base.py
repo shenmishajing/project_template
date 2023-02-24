@@ -37,10 +37,6 @@ class LightningModule(_LightningModule, BaseModule, ABC):
     def configure_optimizer_parameters(self):
         return None
 
-    @staticmethod
-    def add_prefix(log_dict, prefix="train", sep="/"):
-        return {f"{prefix}{sep}{k}": v for k, v in log_dict.items()}
-
     def log(self, *args, batch_size=None, **kwargs):
         if (
             batch_size is None
@@ -49,6 +45,16 @@ class LightningModule(_LightningModule, BaseModule, ABC):
         ):
             batch_size = self.batch_size
         super().log(*args, batch_size=batch_size, **kwargs)
+
+    def _dump_init_info(self, *args, **kwargs):
+        pass
+
+    @staticmethod
+    def add_prefix(log_dict, prefix="train", sep="/"):
+        return {f"{prefix}{sep}{k}": v for k, v in log_dict.items()}
+
+    def on_fit_start(self):
+        self.init_weights()
 
     def _loss_step(self, *args, **kwargs):
         raise NotImplementedError
@@ -65,12 +71,6 @@ class LightningModule(_LightningModule, BaseModule, ABC):
         if "loss" not in loss:
             loss["loss"] = torch.sum(torch.stack(list(loss.values())))
         return loss
-
-    def on_fit_start(self):
-        self.init_weights()
-
-    def _dump_init_info(self, *args, **kwargs):
-        pass
 
     def training_step(self, batch, *args, **kwargs):
         loss_dict = self.loss_step(batch, self(batch))
