@@ -4,8 +4,9 @@ from abc import ABC
 from collections.abc import Mapping, Sequence
 
 from lightning.pytorch.cli import instantiate_class
-from lightning.pytorch.core.datamodule import \
-    LightningDataModule as _LightningDataModule
+from lightning.pytorch.core.datamodule import (
+    LightningDataModule as _LightningDataModule,
+)
 from sklearn.model_selection import KFold
 from torch.utils.data.dataloader import DataLoader
 from torch.utils.data.dataset import Subset
@@ -51,11 +52,14 @@ class LightningDataModule(_LightningDataModule):
                     if not isinstance(config["split_format_to"], Sequence):
                         config["split_format_to"] = [config["split_format_to"]]
 
-                    config["split_name_map"] = config.get("split_name_map", {})
-                    for name in self.SPLIT_NAMES:
-                        config["split_name_map"].setdefault(
-                            name, name if name != "predict" else "test"
-                        )
+                    split_name_map = {
+                        "train": "train",
+                        "val": "val",
+                        "test": "val",
+                        "predict": "val",
+                    }
+                    split_name_map.update(config.get("split_name_map", {}))
+                    config["split_name_map"] = split_name_map
 
                     config.setdefault("split_attr_split_str", ".")
 
