@@ -1,7 +1,10 @@
+import os
+import shutil
 from abc import ABC
 
 import torch
 from lightning.pytorch import LightningModule as _LightningModule
+from lightning.pytorch.utilities.rank_zero import rank_zero_only
 from mmengine.model import BaseModule
 
 
@@ -15,6 +18,7 @@ class LightningModule(_LightningModule, BaseModule, ABC):
         super().__init__(*args, **kwargs)
         self.automatic_lr_schedule = True
         self.manual_step_scedulers = []
+        self._output_paths = []
         self.lr = None
         self.batch_size = None
 
@@ -81,3 +85,28 @@ class LightningModule(_LightningModule, BaseModule, ABC):
         loss_dict = self.loss_step(batch, self(batch))
         self.log_dict(self.add_prefix(loss_dict, prefix="test"), sync_dist=True)
         return loss_dict
+
+    @staticmethod
+    @rank_zero_only
+    def rm_and_create(path):
+        if os.path.exists(path):
+            shutil.rmtree(path)
+        os.makedirs(path, exist_ok=True)
+
+    @property
+    def output_paths(self):
+        return self._output_paths
+
+    def on_predict_start(self) -> None:
+        output_path = os.path.join(
+            os.path.dirname(os.path.dirname(self.trainer.ckpt_path)), "visualization"
+        )
+
+        for name in self.output_paths:
+            path = os.path.join(output_path, name)
+            self.rm_and_create(path)
+            setattr(self, name + "_output_path", path)
+
+    def predict_step(self, *args, **kwargs):
+        for name in self.output_paths:
+            getattr(self, name + "_visualization")(*args, **kwargs)
