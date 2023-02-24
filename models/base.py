@@ -1,5 +1,4 @@
 from abc import ABC
-from typing import Mapping
 
 import torch
 from lightning.pytorch import LightningModule as _LightningModule
@@ -9,9 +8,7 @@ from mmengine.model import BaseModule
 class LightningModule(_LightningModule, BaseModule, ABC):
     def __init__(
         self,
-        normalize_cfg=None,
         loss_weights=None,
-        loss_modules: Mapping[str, torch.nn.Module] = None,
         *args,
         **kwargs,
     ) -> None:
@@ -21,9 +18,7 @@ class LightningModule(_LightningModule, BaseModule, ABC):
         self.lr = None
         self.batch_size = None
 
-        self.normalize_cfg = normalize_cfg
         self.loss_weights = loss_weights
-        self.loss_modules = torch.nn.ModuleDict(loss_modules) if loss_modules else None
 
     def optimizer_step(self, *args, **kwargs) -> None:
         # update params
