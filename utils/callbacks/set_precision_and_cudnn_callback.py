@@ -17,8 +17,6 @@ class SetPrecisionAndCudnnCallback(Callback):
         allow_fp16_reduced_precision_reduction=None,
         deterministic_debug_mode=None,
         cudnn_enabled=None,
-        cudnn_benchmark=None,
-        cudnn_deteministic=None,
     ):
         self.float32_matmul_precision = float32_matmul_precision
         self.allow_fp16_reduced_precision_reduction = (
@@ -26,8 +24,6 @@ class SetPrecisionAndCudnnCallback(Callback):
         )
         self.deterministic_debug_mode = deterministic_debug_mode
         self.cudnn_enabled = cudnn_enabled
-        self.cudnn_benchmark = cudnn_benchmark
-        self.cudnn_deteministic = cudnn_deteministic
 
     def setup(self, *args, **kwargs) -> None:
         if self.float32_matmul_precision is not None:
@@ -41,10 +37,5 @@ class SetPrecisionAndCudnnCallback(Callback):
         if self.deterministic_debug_mode is not None:
             torch.set_deterministic_debug_mode(self.deterministic_debug_mode)
 
-        if torch.backends.cudnn.is_available():
-            if self.cudnn_enabled is not None:
-                torch.backends.cudnn.enabled = self.cudnn_enabled
-            if self.cudnn_benchmark is not None:
-                torch.backends.cudnn.benchmark = self.cudnn_benchmark
-            if self.cudnn_deteministic is not None:
-                torch.backends.cudnn.deteministic = self.cudnn_deteministic
+        if self.cudnn_enabled is not None:
+            torch.backends.cudnn.enabled = self.cudnn_enabled
