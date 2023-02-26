@@ -15,23 +15,15 @@ trainer:
               max_depth: 2
         - class_path: utils.callbacks.set_precision_and_cudnn_callback.SetPrecisionAndCudnnCallback
           init_args:
-              float32_matmul_precision: medium
+              float32_matmul_precision: high
               allow_fp16_reduced_precision_reduction: true
               deterministic_debug_mode: default
               cudnn_enabled: true
-        - class_path: utils.callbacks.wandb_logger_watch_model_callback.WandbLoggerWatchModelCallback
+        - class_path: utils.callbacks.set_wandb_logger_callback.SetWandbLoggerCallback
           init_args:
-              log: all
-              log_freq: 50
-              log_graph: false
-        - class_path: utils.callbacks.wandb_logger_log_all_code_callback.WandbLoggerLogAllCodeCallback
-          init_args:
-              root: .
-              name: null
+              watch_model_cfg:
+                  log: all
         - class_path: lightning.pytorch.callbacks.LearningRateMonitor
-          init_args:
-              logging_interval: null
-              log_momentum: false
         - class_path: utils.callbacks.model_checkpoint.ModelCheckpointWithLinkBest
           init_args:
               monitor: val/loss
