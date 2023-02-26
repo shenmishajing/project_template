@@ -1,5 +1,6 @@
 import copy
-from typing import List, Sequence, Tuple, Union
+from collections import defaultdict
+from typing import List, Mapping, Sequence, Tuple, Union
 
 from lightning.pytorch import LightningModule
 from lightning.pytorch.cli import instantiate_class
@@ -7,52 +8,81 @@ from lightning.pytorch.utilities.types import LRSchedulerType
 from torch.optim import Optimizer
 
 
-def parser_optimizer_config(optimizer_config):
-    optimizer_config = copy.deepcopy(optimizer_config)
-    if not isinstance(optimizer_config, Sequence):
-        optimizer_config = [optimizer_config]
+def parser_optim_config(optim_config):
+    optim_config = copy.deepcopy(optim_config)
+    if not isinstance(optim_config, Sequence):
+        optim_config = [optim_config]
 
-    for i, optimizer_cfg in enumerate(optimizer_config):
+    all_required_parameters = set()
+    for i, optim_cfg in enumerate(optim_config):
         # parse the optimizer config
-        if "optimizer" not in optimizer_cfg:
-            optimizer_config[i] = {"optimizer": optimizer_cfg}
-            optimizer_cfg = optimizer_config[i]
+        if "optimizer" not in optim_cfg:
+            optim_config[i] = {"optimizer": optim_cfg}
+            optim_cfg = optim_config[i]
 
-        if "lr_scheduler" in optimizer_cfg:
-            if "scheduler" not in optimizer_cfg["lr_scheduler"]:
-                optimizer_cfg["lr_scheduler"] = {
-                    "scheduler": optimizer_cfg["lr_scheduler"]
-                }
-    return optimizer_config
+        if "init_args" not in optim_cfg["optimizer"]:
+            optim_cfg["optimizer"]["init_args"] = {}
+        optimizer_init_args = optim_cfg["optimizer"]["init_args"]
+        if "params" not in optimizer_init_args:
+            optimizer_init_args["params"] = [{"params": None}]
+        if not isinstance(optimizer_init_args["params"], Sequence):
+            optimizer_init_args["params"] = [optimizer_init_args["params"]]
+
+        optimizer_init_args["params"] = [
+            p if isinstance(p, Mapping) else {"params": p}
+            for p in optimizer_init_args["params"]
+        ]
+
+        assert all(
+            [
+                isinstance(p["params"], str) or p["params"] is None
+                for p in optimizer_init_args["params"]
+            ]
+        ), "params must be None or str"
+
+        all_required_parameters.update(
+            [p["params"] for p in optimizer_init_args["params"]]
+        )
+
+        if "lr_scheduler" in optim_cfg:
+            if "scheduler" not in optim_cfg["lr_scheduler"]:
+                optim_cfg["lr_scheduler"] = {"scheduler": optim_cfg["lr_scheduler"]}
+    return optim_config, all_required_parameters
 
 
-def get_optimizer_parameters(model, num_optimizer):
+def get_parameters(model, all_required_parameters):
     """
     Get all optimizer parameters.
 
     Args:
         model: a LightningModule.
-        num_optimizer: number of optimizers.
+        all_required_parameters: a set of required parameter names.
     """
-    optimizer_parameters = model.configure_optimizer_parameters()
-    if optimizer_parameters is None:
-        optimizer_parameters = [None] * num_optimizer
-    assert isinstance(
-        optimizer_parameters, list
-    ), "optimizer_parameters should be None or list"
-    if len(optimizer_parameters) < num_optimizer:
-        optimizer_parameters += [None] * (num_optimizer - len(optimizer_parameters))
+    parameters = defaultdict(list)
+    set_rest = None in all_required_parameters
+    all_required_parameters.discard(None)
+    all_required_parameters = sorted(
+        sorted(all_required_parameters), key=len, reverse=True
+    )
+    for name, p in model.named_parameters():
+        for required_parameter in all_required_parameters:
+            if required_parameter in name:
+                parameters[required_parameter].append(p)
+                break
+        else:
+            if set_rest:
+                parameters[None].append(p)
+            else:
+                raise ValueError(f"parameter {name} is not in required_parameters")
+    return parameters
 
-    return optimizer_parameters
 
-
-def construct_optimizer(model, optimizer, params=None, set_lr=False):
+def construct_optimizer(model, optimizer, set_lr=False):
     """
     Constructs the optimizer.
 
     Args:
         model: a LightningModule.
-        params: a list of parameters to optimize, if None, all parameters of model will be optimized.
         optimizer: dictionary containing optimizer configuration.
         set_lr: whether to set the learning rate by the model.lr
     """
@@ -60,11 +90,10 @@ def construct_optimizer(model, optimizer, params=None, set_lr=False):
         if "init_args" not in optimizer:
             optimizer["init_args"] = {}
         optimizer["init_args"]["lr"] = model.lr
-    optimizer = instantiate_class(
-        model.parameters() if params is None else params, optimizer
-    )
+
+    optimizer = instantiate_class(tuple(), optimizer)
     if set_lr and model.lr is None:
-        model.lr = optimizer.param_groups[0]["lr"]
+        model.lr = optimizer.defaults["lr"]
     return optimizer
 
 
@@ -81,45 +110,47 @@ def construct_lr_scheduler(lr_scheduler, optimizer):
     lr_scheduler["scheduler"] = instantiate_class(optimizer, lr_scheduler["scheduler"])
 
     # construct warmup_lr_scheduler
-    warmup_lr_scheduler = None
+    manual_lr_scheduler = None
     if "warmup_config" in lr_scheduler:
-        warmup_lr_scheduler = lr_scheduler.pop("warmup_config")
-        if "scheduler" not in warmup_lr_scheduler:
-            warmup_lr_scheduler = {
+        manual_lr_scheduler = lr_scheduler.pop("warmup_config")
+        if "scheduler" not in manual_lr_scheduler:
+            manual_lr_scheduler = {
                 "scheduler": {
                     "class_path": "utils.optim.WarmupScheduler",
-                    "init_args": warmup_lr_scheduler,
+                    "init_args": manual_lr_scheduler,
                 }
             }
-        warmup_lr_scheduler.setdefault("frequency", 1)
-        warmup_lr_scheduler["scheduler"] = instantiate_class(
-            optimizer, warmup_lr_scheduler["scheduler"]
+        manual_lr_scheduler.setdefault("frequency", 1)
+        manual_lr_scheduler["scheduler"] = instantiate_class(
+            optimizer, manual_lr_scheduler["scheduler"]
         )
-    return lr_scheduler, warmup_lr_scheduler
+    return lr_scheduler, manual_lr_scheduler
 
 
-def get_configure_optimizers_method(optimizer_config):
+def get_configure_optimizers_method(optim_config):
     def configure_optimizers(
         self: LightningModule,
     ) -> Union[Optimizer, Tuple[List[Optimizer], List[LRSchedulerType]]]:
-        optimizer_cfg = parser_optimizer_config(optimizer_config)
-        optimizer_parameters = get_optimizer_parameters(self, len(optimizer_cfg))
+        optim_cfg, all_required_parameters = parser_optim_config(optim_config)
+        parameters = get_parameters(self, all_required_parameters)
         manual_step_scedulers = []
 
-        for i, cfg in enumerate(optimizer_cfg):
+        for i, cfg in enumerate(optim_cfg):
+            # set parameters
+            for p in cfg["optimizer"]["init_args"]["params"]:
+                p["params"] = parameters[p["params"]]
             # construct optimizer
             cfg["optimizer"] = construct_optimizer(
-                self, cfg["optimizer"], optimizer_parameters[i], set_lr=i == 0
+                self, cfg["optimizer"], set_lr=i == 0
             )
             # construct lr_scheduler
             if "lr_scheduler" in cfg:
                 cfg["lr_scheduler"], manual_lr_scheduler = construct_lr_scheduler(
                     cfg["lr_scheduler"], cfg["optimizer"]
                 )
-
                 if manual_lr_scheduler is not None:
                     manual_step_scedulers.append(manual_lr_scheduler)
         self.manual_step_scedulers = manual_step_scedulers
-        return optimizer_cfg
+        return optim_cfg
 
     return configure_optimizers

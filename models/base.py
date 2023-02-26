@@ -33,9 +33,6 @@ class LightningModule(_LightningModule, BaseModule, ABC):
             if self.trainer.global_step % scheduler["frequency"] == 0:
                 scheduler["scheduler"].step()
 
-    def configure_optimizer_parameters(self):
-        return None
-
     def log(self, *args, batch_size=None, **kwargs):
         if (
             batch_size is None
