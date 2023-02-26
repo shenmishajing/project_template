@@ -9,6 +9,12 @@ from torch.optim import Optimizer
 
 
 def parser_optim_config(optim_config):
+    """
+    Parse the optimizer config.
+
+    Args:
+        optim_config (dict): The optimizer and lr_scheduler config.
+    """
     optim_config = copy.deepcopy(optim_config)
     if not isinstance(optim_config, Sequence):
         optim_config = [optim_config]
@@ -20,6 +26,7 @@ def parser_optim_config(optim_config):
             optim_config[i] = {"optimizer": optim_cfg}
             optim_cfg = optim_config[i]
 
+        # parse the params of optimizers
         if "init_args" not in optim_cfg["optimizer"]:
             optim_cfg["optimizer"]["init_args"] = {}
         optimizer_init_args = optim_cfg["optimizer"]["init_args"]
@@ -40,10 +47,12 @@ def parser_optim_config(optim_config):
             ]
         ), "params must be None or str"
 
+        # get all required parameters
         all_required_parameters.update(
             [p["params"] for p in optimizer_init_args["params"]]
         )
 
+        # parse the lr_scheduler config
         if "lr_scheduler" in optim_cfg:
             if "scheduler" not in optim_cfg["lr_scheduler"]:
                 optim_cfg["lr_scheduler"] = {"scheduler": optim_cfg["lr_scheduler"]}
@@ -86,11 +95,13 @@ def construct_optimizer(model, optimizer, set_lr=False):
         optimizer: dictionary containing optimizer configuration.
         set_lr: whether to set the learning rate by the model.lr
     """
+    # set lr for lr finder
     if model.lr is not None and set_lr:
         if "init_args" not in optimizer:
             optimizer["init_args"] = {}
         optimizer["init_args"]["lr"] = model.lr
 
+    # construct optimizer
     optimizer = instantiate_class(tuple(), optimizer)
     if set_lr and model.lr is None:
         model.lr = optimizer.defaults["lr"]
