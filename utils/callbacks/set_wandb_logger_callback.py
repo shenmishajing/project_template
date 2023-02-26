@@ -1,3 +1,4 @@
+from functools import partial
 from typing import Optional
 
 from lightning.pytorch import Callback, LightningModule, Trainer
@@ -23,8 +24,9 @@ class SetWandbLoggerCallback(Callback):
             self.log_code_cfg.setdefault(key, value)
         for name in ["include_fn", "exclude_fn"]:
             if name in self.log_code_cfg:
-                self.log_code_cfg[name] = lambda path: any(
-                    [path.endswith(ext) for ext in self.log_code_cfg[name]]
+                self.log_code_cfg[name] = partial(
+                    lambda path, exts: any([path.endswith(ext) for ext in exts]),
+                    exts=self.log_code_cfg[name],
                 )
 
     def setup(
