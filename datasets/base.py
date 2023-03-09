@@ -17,7 +17,7 @@ from utils import deep_update
 class LightningDataModule(_LightningDataModule):
     def __init__(
         self,
-        dataset_cfg: dict,
+        dataset_cfg: dict = None,
         dataloader_cfg: dict = None,
     ):
         super().__init__()
