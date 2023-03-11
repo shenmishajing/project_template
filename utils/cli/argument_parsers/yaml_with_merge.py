@@ -38,7 +38,7 @@ def deep_update(source, override):
     elif isinstance(source, List) and isinstance(override, Dict):
         if "__delete__" in override and override["__delete__"] is True:
             override.pop("__delete__")
-            return override
+            source = []
 
         if "change_item" in override:
             change_item = override.pop("change_item")
@@ -47,24 +47,63 @@ def deep_update(source, override):
 
         if "insert_item" in override:
             insert_item = override.pop("insert_item")
-            insert_item.sort(key=lambda x: x[0], reverse=True)
+            for i in range(len(insert_item)):
+                if insert_item[i][0] < 0:
+                    insert_item[i][0] = len(source) + insert_item[i][0]
+
+            if "__delete__" in override:
+                if isinstance(override["__delete__"], int):
+                    override["__delete__"] = [override["__delete__"]]
+                for i in range(len(override["__delete__"])):
+                    if override["__delete__"][i] < 0:
+                        if override["__delete__"][i] < -len(source):
+                            raise ValueError(
+                                f'Cannot delete item at index {override["__delete__"][i]} from {source}'
+                            )
+                        else:
+                            override["__delete__"][i] += len(source)
+
+            pre_items = []
+            post_items = []
+            insert_list = []
+            insert_item.sort(key=lambda x: x[0])
             for item in insert_item:
                 if len(item) == 3:
                     index, value, extend = item
                 else:
                     index, value = item
                     extend = False
+
+                if index < 0:
+                    if extend:
+                        assert isinstance(value, list), "Cannot extend a non-list"
+                        pre_items.extend(item)
+                    else:
+                        pre_items.append(item)
+                elif index >= len(source):
+                    if extend:
+                        assert isinstance(value, list), "Cannot extend a non-list"
+                        post_items.extend(item)
+                    else:
+                        post_items.append(item)
+                else:
+                    insert_list.append([index, value, extend])
+            insert_list.reverse()
+
+            for item in insert_list:
+                index, value, extend = item
                 if extend:
                     assert isinstance(value, list), "Cannot extend a non-list"
-                    value.reverse()
-                    for v in value:
-                        source.insert(index, v)
+                    if index >= len(source):
+                        source = source + value
+                    else:
+                        value.reverse()
+                        for v in value:
+                            source.insert(index, v)
                 else:
                     source.insert(index, value)
 
                 if "__delete__" in override:
-                    if isinstance(override["__delete__"], int):
-                        override["__delete__"] = [override["__delete__"]]
                     for i in range(len(override["__delete__"])):
                         if override["__delete__"][i] >= index:
                             if extend:
@@ -72,18 +111,29 @@ def deep_update(source, override):
                             else:
                                 override["__delete__"][i] += 1
 
+            source = pre_items + source + post_items
+            if pre_items:
+                for i in range(len(override["__delete__"])):
+                    override["__delete__"][i] += len(pre_items)
+
         if "__delete__" in override:
             delete_keys = override.pop("__delete__")
             if isinstance(delete_keys, int):
                 delete_keys = [delete_keys]
 
-            if isinstance(delete_keys, list):
-                delete_keys = list({int(d) for d in delete_keys})
-                delete_keys.sort(reverse=True)
-                for k in delete_keys:
-                    source.pop(k)
-            elif delete_keys:
-                return override
+            for i in range(len(delete_keys)):
+                delete_keys[i] = int(delete_keys[i])
+                if delete_keys[i] < 0:
+                    if delete_keys[i] < -len(source):
+                        raise ValueError(
+                            f"Cannot delete item at index {delete_keys[i]} from {source}"
+                        )
+                    else:
+                        delete_keys[i] += len(source)
+            delete_keys = list(set(delete_keys))
+            delete_keys.sort(reverse=True)
+            for k in delete_keys:
+                source.pop(k)
         if "pre_item" in override:
             source = (
                 override["pre_item"]
@@ -109,6 +159,13 @@ def get_cfg_from_path(cfg_path):
 
 
 def parse_config(cfg_file, cfg_path=None, **kwargs):
+    if "__import__" in cfg_file:
+        cfg_file.pop("__import__")
+
+    for k, v in cfg_file.items():
+        if isinstance(v, dict):
+            cfg_file[k] = parse_config(v, cfg_path, **kwargs)
+
     if "__base__" in cfg_file:
         sub_cfg_paths = cfg_file.pop("__base__")
         if sub_cfg_paths is not None:
@@ -138,12 +195,7 @@ def parse_config(cfg_file, cfg_path=None, **kwargs):
                         cur_cfg_file = cur_cfg_file[key]
                 sub_cfg_file = deep_update(sub_cfg_file, cur_cfg_file)
             cfg_file = deep_update(sub_cfg_file, cfg_file)
-    if "__import__" in cfg_file:
-        cfg_file.pop("__import__")
 
-    for k, v in cfg_file.items():
-        if isinstance(v, dict):
-            cfg_file[k] = parse_config(v, cfg_path, **kwargs)
     return cfg_file
 
 
