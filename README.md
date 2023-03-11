@@ -8,7 +8,7 @@ A generic project template based on [pytorch lightning](https://pytorch-lightnin
 - Powerful [deep update](docs/configs/deep_update.md) feature for config file inherit to manage your config files in a more hierarchical way, see also [recommand config file structure](docs/configs/config_file_structure.md).
 - Multi and complex optimizers and lr_scheduler from CLI config support, see [doc](docs/core/optimizer_config.md).
 - Powerful and flexible LightningModule and LightningDataModule base class.
-- Cross-validation support with only one argument to change.
+- Cross-validation support with only one argument you have to change.
 
 ## Installation
 

@@ -22,7 +22,7 @@ CUDA_VISIBLE_DEVICES=<gpu_ids> python tools/cli.py {validation, test, predict} -
 
 ### auto scale batch size ###
 
-Auto find the largest batch size or largest power of two as batch size. You can get more information from [https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-scale-batch-size].
+Auto find the largest batch size or largest power of two as batch size. You can get more information from [doc](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-scale-batch-size).
 
 To use this feature with this project run
 ```bash
@@ -30,7 +30,7 @@ CUDA_VISIBLE_DEVICES=<gpu_ids> python tools/cli.py tune --config configs/runs/pa
 ```
 ### auto lr finder ###
 
-Auto find the best learning rate for models, currently only support the first optimizer. You can get more information from [https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find].
+Auto find the best learning rate for models, currently only support the first optimizer. You can get more information from [doc](https://pytorch-lightning.readthedocs.io/en/stable/common/trainer.html#auto-lr-find).
 
 To use this feature with this project run
 ```bash

@@ -186,7 +186,7 @@ init_args:
 
 ## warmup lr scheduler config
 
-A warmup lr scheduler config is a part-support Lightning lr scheduler config, which means only the scheduler and frequency key are supported, the `interval` will be set to `step` forcefully.
+A warmup lr scheduler (implemented by [this method](model.md#manual-lr-scheduler)) config is a part-support Lightning lr scheduler config, which means only the scheduler and frequency key are supported, the `interval` will be set to `step` forcefully.
 
 A complete warmup lr scheduler config will look like:
 

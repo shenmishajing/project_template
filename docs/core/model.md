@@ -8,7 +8,7 @@ The base LightningModule has only one argument named `loss_weights` which is a d
 
 ## Manual lr scheduler
 
-When we use multi lr scheduler with one optimizer, we will get in trouble with Lightning and lr monitor callback. Therefore, we support the manual lr scheduler, they are not a lightning lr scheduler, and is not known by Ligihtning, they are just called at their `frequency` after every `optimize_step`.
+When we use multi lr scheduler with one optimizer, typically one optimizer with a lr scheduler and a [warmup scheduler](optimizer_config.md#warmup-lr-scheduler-config) (the warmup scheduler described [here](optimizer_config.md#warmup-lr-scheduler-config) is implemented in this way), we will get in trouble with Lightning and lr monitor callback. Therefore, we support the manual lr scheduler, they are not a lightning lr scheduler, and is not known by Ligihtning, they are just called at their `frequency` after every `optimize_step`.
 
 ## Train loop
 
