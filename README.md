@@ -16,20 +16,22 @@ See [installation docs](docs/installation/installation.md) for details.
 
 ## Usage
 
+### CLI
+
 This project base on the [lightning CLI](https://pytorch-lightning.readthedocs.io/en/stable/cli/lightning_cli.html), so it support all feature from [pytorch lightning](https://pytorch-lightning.readthedocs.io/en/stable/) and [lightning CLI](https://pytorch-lightning.readthedocs.io/en/stable/cli/lightning_cli.html), you can get a brief introduction from [cli doc](docs/tools/cli.md).
 
-## Create models and datasets
+### Create models and datasets
 
 As [pytorch lightning](https://pytorch-lightning.readthedocs.io/en/stable/), we use LightningModule to implement the model and train, val and test loop, use LightningDataModule to implement dataset and dataloaders, for detail, see [model doc](docs/core/model.md) and [dataset doc](docs/core/dataset.md)
 
-## Config optimizers and lr schedulers
+### Config optimizers and lr schedulers
 
 [pytorch lightning](https://pytorch-lightning.readthedocs.io/en/stable/) do not support multi optimizers and lr schedulers from cli, we add this feature, see [doc](docs/core/optimizer_config.md) for detail.
 
-## Cross-validation
+### Cross-validation
 
 Set `num_folds` of trainer to a int bigger than one to start cross-validation, for details, see [doc](docs/core/trainer.md).
 
-## Config files
+### Config files
 
 See [config file structure](docs/configs/config_file_structure.md), [deep update](docs/configs/deep_update.md), [yaml with merge](docs/configs/argument_parsers/yaml_with_merge.md) and [json file](docs/configs/argument_parsers/json_file.md)
