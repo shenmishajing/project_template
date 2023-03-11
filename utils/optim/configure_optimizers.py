@@ -110,7 +110,7 @@ def construct_lr_scheduler(lr_scheduler, optimizer):
         if "class_path" not in manual_lr_scheduler["scheduler"]:
             manual_lr_scheduler["scheduler"] = {
                 "class_path": "utils.optim.WarmupScheduler",
-                "init_args": manual_lr_scheduler,
+                "init_args": manual_lr_scheduler["scheduler"],
             }
         manual_lr_scheduler.setdefault("frequency", 1)
         manual_lr_scheduler["scheduler"] = instantiate_class(
