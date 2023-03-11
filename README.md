@@ -9,6 +9,7 @@ A generic project template based on [pytorch lightning](https://pytorch-lightnin
 - Multi and complex optimizers and lr_scheduler from CLI config support, see [doc](docs/core/optimizer_config.md).
 - Powerful and flexible LightningModule and LightningDataModule base class.
 - Cross-validation support with only one argument you have to change.
+- Useful auto lr finder and auto batch size scaler.
 
 ## Installation
 
