@@ -10,7 +10,9 @@ Install [pytorch](https://pytorch.org/get-started/locally/) from their official 
 
 ### Automaticaly installation
 
-Generally, you can just use the latest pacages in `requirements.txt` without specific their version, so you can install this project by two steps.
+Generally, you can just use the latest pacages in `requirements.txt` without specific their version, so you can use command as follow to install this project and all required packages.
 
-- Install required packages with `pip install -r requirements.txt`
-- Install this project with `pip install -e .`
+```bash
+pip install -r requirements.txt
+pip install -e .
+```
