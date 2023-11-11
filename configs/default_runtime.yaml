@@ -54,10 +54,17 @@ trainer:
     overfit_batches: 0.0
     # fast_dev_run: 10
     # profiler:
-    #     class_path: lightning.pytorch.profilers.AdvancedProfiler
+    #     class_path: lightning.pytorch.profilers.PyTorchProfiler
     #     init_args:
-    #         dirpath: .
-    #         filename: advanced_profiler
+    #         dirpath: profile
+    #         filename: pytorch_profiler
+    #     dict_kwargs:
+    #         use_cuda: true
+    #         record_shapes: true
+    #         profile_memory: true
+    #         with_flops: true
+    #         with_modules: true
+    #         # with_stack: true
     # speed up
     num_nodes: 1
     accelerator: auto
