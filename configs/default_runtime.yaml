@@ -36,7 +36,7 @@ trainer:
         - class_path: lightning_template.utils.callbacks.custom_repr.CustomReprCallback
         - class_path: lightning.pytorch.callbacks.LearningRateMonitor
     # train len
-    max_epochs: null
+    max_epochs: -1
     min_epochs: null
     max_steps: -1
     min_steps: null
