@@ -52,6 +52,7 @@ trainer:
     limit_test_batches: 1.0
     limit_predict_batches: 1.0
     overfit_batches: 0.0
+    detect_anomaly: false
     # fast_dev_run: 10
     # profiler:
     #     class_path: lightning.pytorch.profilers.PyTorchProfiler
@@ -83,8 +84,6 @@ trainer:
     check_val_every_n_epoch: 1
     val_check_interval: 1.0
     log_every_n_steps: 50
-    # tools
-    detect_anomaly: false
 
 # seed
 seed_everything: null
