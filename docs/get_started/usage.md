@@ -86,7 +86,7 @@ If you want to publish your project as a python package and also generate github
 - Modify the `release` and `autoapi_dirs` information in `docs/config.py`, according to your new name.
 - Modify the name and URLs used in `README.md` and `pyproject.toml`.
 - Add any content you want in the `src` folder.
-- Move the `.github/examples/releas.yml` and `.github/examples/pre_release.yml` to the `.github/workflows` folder.
+- Move the `.github/examples/release.yml` and `.github/examples/pre_release.yml` to the `.github/workflows` folder.
 - Commit your changes following the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) style.
 - Bump version by [commitizen](https://github.com/commitizen-tools/commitizen) using the `cz bump` command. A changelog file will be generated in the `docs/get_started` folder automatically according to your commit messages in the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) style.
 - Add your project as a publisher on [PyPI](https://pypi.org/) and [TestPyPI](https://test.pypi.org/) respectively. You should set up the `release.yml` for [PyPI](https://pypi.org/) and the `pre_release.yml` for [TestPyPI](https://test.pypi.org/).
