@@ -1,9 +1,5 @@
 # Project Template
 
-[📘Documentation](https://project-template.readthedocs.io) |
-[🛠️Installation](https://project-template.readthedocs.io/en/latest/get_started/installation.html) |
-[🤔Reporting Issues](https://github.com/shenmishajing/project_template/issues)
-
 This template project is based on [pytorch lightning](https://pytorch-lightning.readthedocs.io/en/stable/) and [lightning-template](https://github.com/shenmishajing/lightning_template). Please read the docs of them before using this template.
 
 ## Installation
