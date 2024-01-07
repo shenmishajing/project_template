@@ -2,3 +2,4 @@ temp
 /data
 /wandb
 /work_dirs
+/src/project/version.py
