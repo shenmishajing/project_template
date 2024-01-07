@@ -55,7 +55,7 @@ Pre-commit hooks are used to automatically format, lint your commit and check yo
 If you want to build a documentation site for your project, you have to follow the following steps:
 
 - Import your project from [readthedocs](https://readthedocs.org/).
-- In `Admin > Automation Rules` of the Setting of your project, add a new rule to automatically set the new version as default when a new tag is published. The `Match` of the rule should be `SemVer versions`. The `Version type` should be `tag` and the `Action` should be `Set version as default`.
+- In `Admin > Automation Rules` of the Setting of your project, add a new rule to automatically activate the new version when a new tag is published. The `Match` of the rule should be `SemVer versions`. The `Version type` should be `tag` and the `Action` should be `Activate version`.
 - Make a new name for your project.
 - Modify the `project` and `author` information in `docs/config.py`.
 - Rewrite an introduction and rename the project in `docs/index.md`
