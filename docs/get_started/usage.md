@@ -57,6 +57,7 @@ If you want to build a documentation site for your project, you have to follow t
 - Import your project from [readthedocs](https://readthedocs.org/).
 - In `Admin > Automation Rules` of the Setting of your project, add a new rule to automatically set the new version as default when a new tag is published. The `Match` of the rule should be `SemVer versions`. The `Version type` should be `tag` and the `Action` should be `Set version as default`.
 - Make a new name for your project.
+- Modify the `project` and `author` information in `docs/config.py`.
 - Rewrite an introduction and rename the project in `docs/index.md`
 - Rewrite the Usage in `docs/get_started/usage.md`
 - Modify the name and URLs used in `README.md`.
@@ -82,6 +83,7 @@ If you want to publish your project as a python package and also generate github
 
 - Tag your project with `1.0.0`.
 - Make up a new name for your project. Modify the name in `pyproject.toml` and rename the `src/project` folder.
+- Modify the `release` and `autoapi_dirs` information in `docs/config.py`, according to your new name.
 - Modify the name and URLs used in `README.md` and `pyproject.toml`.
 - Add any content you want in the `src` folder.
 - Move the `.github/examples/releas.yml` and `.github/examples/pre_release.yml` to the `.github/workflows` folder.
