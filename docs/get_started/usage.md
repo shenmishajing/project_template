@@ -70,7 +70,7 @@ If you want to add unit tests for your project, you have to follow the following
 
 - [Optional if your repo is public] Setup up your project on [codecov](https://app.codecov.io/) and set up the `CODECOV_TOKEN` secret for your project. You can skip this step if your project is public since the upload action of [codecov](https://app.codecov.io/) supports tokenless upload for public repo now. But if your project is private, it's required to set up the `CODECOV_TOKEN` secret for your project.
 - Add unit tests in the `tests` folder following the [pytest](https://docs.pytest.org/en/latest/) style.
-- Rename the `test.example.yml` to `test.yml` under the `.github/workflows` folder.
+- Move the `.github/examples/test.yml` to the `.github/workflows` folder.
 - [Optional] Check the Python versions and os var set in the `.github/workflows/test.yml` file. You can add more versions or remove them if you want.
 - Commit your changes and push them to the remote repo.
 - Enable flag analysis in the `Flags` setting of your project on [codecov](https://app.codecov.io/).
@@ -84,7 +84,7 @@ If you want to publish your project as a python package and also generate github
 - Make up a new name for your project. Modify the name in `pyproject.toml` and rename the `src/project` folder.
 - Modify the name and URLs used in `README.md` and `pyproject.toml`.
 - Add any content you want in the `src` folder.
-- Rename the `releas.example.yml` and `pre_release.example.yml` under the `.github/workflows` folder to `releas.yml` and `pre_release.yml` respectively.
+- Move the `.github/examples/releas.yml` and `.github/examples/pre_release.yml` to the `.github/workflows` folder.
 - Commit your changes following the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) style.
 - Bump version by [commitizen](https://github.com/commitizen-tools/commitizen) using the `cz bump` command. A changelog file will be generated in the `docs/get_started` folder automatically according to your commit messages in the [conventional commit](https://www.conventionalcommits.org/en/v1.0.0/) style.
 - Add your project as a publisher on [PyPI](https://pypi.org/) and [TestPyPI](https://test.pypi.org/) respectively. You should set up the `release.yml` for [PyPI](https://pypi.org/) and the `pre_release.yml` for [TestPyPI](https://test.pypi.org/).
