@@ -1,4 +1,0 @@
-lightning-template
-wandb
-rich
-thop
