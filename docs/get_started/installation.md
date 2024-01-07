@@ -39,4 +39,3 @@ Generally, you can just use the latest dependencies without a specific version, 
 ```bash
 pip install -e ".[optional]"
 ```
-
