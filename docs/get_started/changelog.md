@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.0 (2024-01-07)
+
+### Feat
+
+- **version**: add the version feat
+
 ## 0.1.0 (2024-01-07)
 
 ### Feat
