@@ -43,7 +43,7 @@ doc = [
 ]
 build = ["build"]
 test = ["tox", "pytest", "pytest-cov"]
-all = ["project[optional,dev,doc,build,test]"]
+all = ["project-template[optional,dev,doc,build,test]"]
 
 [project.urls]
 Homepage = "https://github.com/shenmishajing/project_template"
