@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1 (2024-01-10)
+
+### Refactor
+
+- **yaml**: reformat yaml files
+
 ## 0.2.0 (2024-01-07)
 
 ### Feat
