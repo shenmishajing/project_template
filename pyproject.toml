@@ -43,7 +43,8 @@ doc = [
 ]
 build = ["build"]
 test = ["tox", "pytest", "pytest-cov"]
-all = ["project-template[optional,dev,doc,build,test]"]
+profile = ["torch_tb_profiler"]
+all = ["project-template[optional,dev,doc,build,test,profile]"]
 
 [project.urls]
 Homepage = "https://github.com/shenmishajing/project_template"
