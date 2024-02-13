@@ -37,7 +37,7 @@ Install [Pytorch](https://pytorch.org/get-started/locally/) from their official 
 Generally, you can just use the latest dependencies without a specific version, so you can use the command as follows to install this project and all required packages.
 
 ```bash
-pip install -e ".[optional]"
+pip install -e ".[deps]"
 ```
 
 ## Logger
