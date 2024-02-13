@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.2 (2024-02-13)
+
+### Refactor
+
+- **seed_everything**: set seed_everything to True instead of None
+
 ## 0.2.1 (2024-01-10)
 
 ### Refactor
