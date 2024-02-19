@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.3 (2024-02-19)
+
+### Refactor
+
+- **default-runtime**: add entity config
+
 ## 0.2.2 (2024-02-13)
 
 ### Refactor
