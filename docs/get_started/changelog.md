@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.5 (2024-02-21)
+
+### Refactor
+
+- **default_runtime**: update the config of trainer to the default parameters of trainer
+
 ## 0.2.4 (2024-02-21)
 
 ### Refactor
