@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.4 (2024-02-21)
+
+### Refactor
+
+- **SetRichTracebackHandlerCallback**: add SetRichTracebackHandlerCallback config
+
 ## 0.2.3 (2024-02-19)
 
 ### Refactor
