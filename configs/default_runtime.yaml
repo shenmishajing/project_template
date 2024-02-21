@@ -20,6 +20,9 @@ trainer:
         save_best: true
         mode: min
         auto_insert_metric_name: false
+    # - class_path: lightning_template.utils.callbacks.set_rich_traceback_handler.SetRichTracebackHandlerCallback
+    #   init_args:
+    #     show_locals: true
     - class_path: lightning_template.utils.progress.rich_progress.RichProgressBar
       init_args:
         show_version: false
