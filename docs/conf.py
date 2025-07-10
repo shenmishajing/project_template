@@ -6,6 +6,8 @@
 
 # -- Path setup --------------------------------------------------------------
 
+import tomllib
+from datetime import datetime
 from importlib.metadata import version as get_version
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -19,12 +21,39 @@ from importlib.metadata import version as get_version
 
 # -- Project information -----------------------------------------------------
 
-project = "project-template"
-copyright = "2023, shenmishajing"
-author = "shenmishajing"
+
+def get_project_info_from_toml(file_path):
+    """Get the project name and author from the pyproject.toml file.
+
+    Args:
+        file_path: The path to the pyproject.toml file.
+
+    Returns:
+        A dict of the project name and author.
+    """
+    try:
+        with open(file_path, "rb") as f:
+            data = tomllib.load(f)
+        return {
+            "name": data.get("project", {}).get("name"),
+            "author": data.get("project", {}).get("authors", [{}])[0].get("name"),
+        }
+    except FileNotFoundError:
+        print(f"Error: file '{file_path}' not found.")
+        return None
+    except Exception as e:
+        print(f"Error: failed to parse the toml file: {e}")
+        return None
+
+
+project_info = get_project_info_from_toml("../pyproject.toml")
+project = project_info.get("name")
+author = project_info.get("author")
+year = datetime.now().year
+copyright = f"{year}, {author}"
 
 # The full version, including alpha/beta/rc tags
-release: str = get_version("project-template")
+release: str = get_version(project)
 # for example take major/minor
 version: str = ".".join(release.split(".")[:2])
 
@@ -44,7 +73,7 @@ extensions = [
     "sphinx_design",
 ]
 
-autoapi_dirs = ["../src/project/"]
+autoapi_dirs = [f"../src/{project}/"]
 autoapi_add_toctree_entry = False
 
 # Add any paths that contain templates here, relative to this directory.

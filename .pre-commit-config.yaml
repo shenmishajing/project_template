@@ -1,9 +1,10 @@
 # See https://pre-commit.com for more information
 # See https://pre-commit.com/hooks.html for more hooks
 default_install_hook_types: [pre-commit, commit-msg]
+exclude: "pixi.lock"
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
+    rev: v5.0.0
     hooks:
       - id: check-added-large-files
       - id: check-ast
@@ -24,19 +25,19 @@ repos:
       - id: mixed-line-ending
       - id: trailing-whitespace
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.2.6
+    rev: v2.4.1
     hooks:
       - id: codespell
         args: ["--write-changes"]
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
+    rev: v1.7.7
     hooks:
       - id: docformatter
         args:
           - --black
           - --in-place
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.11
+    rev: v0.12.2
     hooks:
       - id: ruff
         types_or: [python, pyi, jupyter]
@@ -44,6 +45,6 @@ repos:
       - id: ruff-format
         types_or: [python, pyi, jupyter]
   - repo: https://github.com/commitizen-tools/commitizen
-    rev: v3.13.0
+    rev: v4.8.3
     hooks:
       - id: commitizen
