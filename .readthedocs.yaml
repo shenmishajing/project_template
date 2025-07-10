@@ -23,11 +23,13 @@ build:
       - pixi install -e dev-doc
     build:
       html:
-        - pixi run -e dev-doc sphinx-build -T -b html docs $READTHEDOCS_OUTPUT/html
+        - pixi run -e dev-doc python -m sphinx -T -b html -d _build/doctrees -D language=en . $READTHEDOCS_OUTPUT/html
       pdf:
-        - pixi run -e dev-doc sphinx-build -T -b pdf docs $READTHEDOCS_OUTPUT/pdf
+        - pixi run -e dev-doc python -m sphinx -T -b latex -d _build/doctrees -D language=en . $READTHEDOCS_OUTPUT/pdf
+        - cat latexmkrc
+        - latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
       epub:
-        - pixi run -e dev-doc sphinx-build -T -b epub docs $READTHEDOCS_OUTPUT/epub
+        - pixi run -e dev-doc python -m sphinx -T -b epub -d _build/doctrees -D language=en . $READTHEDOCS_OUTPUT/epub
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
