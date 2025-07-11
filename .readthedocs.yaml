@@ -28,7 +28,7 @@ build:
         - pixi run -e dev-doc python -m sphinx -T -b singlehtml -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/htmlzip
       pdf:
         - pixi run -e dev-doc python -m sphinx -T -b latex -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/pdf
-        - latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
+        - cd $READTHEDOCS_OUTPUT/pdf && latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
       epub:
         - pixi run -e dev-doc python -m sphinx -T -b epub -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/epub
 
