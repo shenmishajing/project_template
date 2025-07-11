@@ -15,7 +15,6 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.8.3
         with:
           pixi-version: v0.49.0
-          cache: true
           environments: dev-commit
           activate-environment: true
       - name: Install pre-commit and hooks

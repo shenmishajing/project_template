@@ -27,7 +27,6 @@ jobs:
       - uses: prefix-dev/setup-pixi@v0.8.3
         with:
           pixi-version: v0.49.0
-          cache: true
           environments: default
           activate-environment: true
       - name: Run test suite
