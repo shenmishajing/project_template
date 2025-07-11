@@ -23,14 +23,16 @@ build:
       - pixi install -e dev-doc
     build:
       html:
-        - pwd && pixi run -e dev-doc python -m sphinx -T -b html -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
+        - pixi run -e dev-doc python -m sphinx -T -b html -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
       htmlzip:
-        - pwd && pixi run -e dev-doc python -m sphinx -T -b singlehtml -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/htmlzip
+        - pixi run -e dev-doc python -m sphinx -T -b singlehtml -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/htmlzip/raw
+        - zip -r $READTHEDOCS_OUTPUT/htmlzip/htmlzip.zip $READTHEDOCS_OUTPUT/htmlzip/raw
+        - rm -rf $READTHEDOCS_OUTPUT/htmlzip/raw
       pdf:
-        - pwd && pixi run -e dev-doc python -m sphinx -T -b latex -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/pdf
-        - pwd && cd $READTHEDOCS_OUTPUT/pdf && pwd && latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
+        - pixi run -e dev-doc python -m sphinx -T -b latex -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/pdf
+        - cd $READTHEDOCS_OUTPUT/pdf && latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
       epub:
-        - pwd && pixi run -e dev-doc python -m sphinx -T -b epub -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/epub
+        - pixi run -e dev-doc python -m sphinx -T -b epub -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/epub
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
