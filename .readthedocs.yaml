@@ -29,10 +29,14 @@ build:
         - zip -r $READTHEDOCS_OUTPUT/htmlzip/htmlzip.zip $READTHEDOCS_OUTPUT/htmlzip/raw
         - rm -rf $READTHEDOCS_OUTPUT/htmlzip/raw
       pdf:
-        - pixi run -e dev-doc python -m sphinx -T -b latex -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/pdf
-        - cd $READTHEDOCS_OUTPUT/pdf && latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
+        - pixi run -e dev-doc python -m sphinx -T -b latex -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/pdf/raw
+        - cd $READTHEDOCS_OUTPUT/pdf/raw && latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
+        - mv $READTHEDOCS_OUTPUT/pdf/raw/*.pdf $READTHEDOCS_OUTPUT/pdf
+        - rm -rf $READTHEDOCS_OUTPUT/pdf/raw
       epub:
-        - pixi run -e dev-doc python -m sphinx -T -b epub -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/epub
+        - pixi run -e dev-doc python -m sphinx -T -b epub -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/epub/raw
+        - mv $READTHEDOCS_OUTPUT/epub/raw/*.epub $READTHEDOCS_OUTPUT/epub
+        - rm -rf $READTHEDOCS_OUTPUT/epub/raw
 
 # Build documentation in the "docs/" directory with Sphinx
 sphinx:
