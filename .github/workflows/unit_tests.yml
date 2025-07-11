@@ -32,7 +32,7 @@ jobs:
       - name: Run test suite
         run: pytest -co || (if [ $? -eq 5 ]; then exit 0; else pytest --cov=src --cov-branch --cov-report=xml; fi)
       - name: Upload coverage reports to Codecov with GitHub Action
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         if: env.CODECOV_TOKEN != ''
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
@@ -64,7 +64,7 @@ jobs:
   #     - name: Run test suite
   #       run: pixi exec --spec python=${{ matrix.py }} pytest -co || (if [ $? -eq 5 ]; then exit 0; else pytest --cov=src --cov-branch --cov-report=xml; fi)
   #     - name: Upload coverage reports to Codecov with GitHub Action
-  #       uses: codecov/codecov-action@v3
+  #       uses: codecov/codecov-action@v5
   #       if: env.CODECOV_TOKEN != ''
   #       env:
   #         CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
