@@ -24,9 +24,10 @@ build:
     build:
       html:
         - pixi run -e dev-doc python -m sphinx -T -b html -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/html
+      htmlzip:
+        - pixi run -e dev-doc python -m sphinx -T -b singlehtml -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/htmlzip
       pdf:
         - pixi run -e dev-doc python -m sphinx -T -b latex -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/pdf
-        - cat latexmkrc
         - latexmk -r latexmkrc -pdf -f -dvi- -ps- -interaction=nonstopmode
       epub:
         - pixi run -e dev-doc python -m sphinx -T -b epub -d _build/doctrees -D language=en docs $READTHEDOCS_OUTPUT/epub
@@ -39,9 +40,7 @@ sphinx:
   # Fail on all warnings to avoid broken references
   # fail_on_warning: true
 # Optionally build your docs in additional formats such as PDF and ePub
-formats:
-  - pdf
-  - epub
+formats: all
 # # Optional but recommended, declare the Python requirements required
 # # to build your documentation
 # # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
