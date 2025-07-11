@@ -71,7 +71,7 @@ dev-test = { features = ["dev-test"], solve-group = "default" }
 source = "vcs"
 
 [tool.hatch.version.raw-options]
-local_scheme = "node-and-timestamp"
+local_scheme = "dirty-tag"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "src/project/version.py"
